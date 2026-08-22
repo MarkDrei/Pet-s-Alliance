@@ -29,6 +29,8 @@ export function createGame(content: Content, level: LevelDef): GameState {
       toppled: false,
       shielded: false,
     })),
+    terrain: (level.terrain ?? []).map((t) => ({ defId: t.defId, pos: t.pos })),
+    floor: level.floor ?? { light: "tile-light", dark: "tile-dark" },
     items: level.items.map((defId) => ({ defId, used: false })),
     pendingSpawns: [...level.spawns],
     pendingRobotIds: [],

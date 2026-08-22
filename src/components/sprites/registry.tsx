@@ -59,20 +59,59 @@ function SheetSprite({
 // Tiles
 // ---------------------------------------------------------------------------
 
-function TileLight() {
+function Tile({ fill, stroke }: { fill: string; stroke: string }) {
   return (
     <g>
-      <polygon points={diamondPoints()} fill="#8b9dd4" stroke="#6c7db3" strokeWidth={1} />
-      <polygon points={diamondPoints(0.8)} fill="none" stroke="#ffffff" strokeWidth={1} opacity={0.09} />
+      <polygon points={diamondPoints()} fill={fill} stroke={stroke} strokeWidth={1} />
+      <polygon points={diamondPoints(0.8)} fill="none" stroke="#ffffff" strokeWidth={1} opacity={0.08} />
     </g>
   );
 }
 
-function TileDark() {
+// Carpet (level 1), wood floor (book corner), marble track (marble run),
+// desk mat (desk fortress).
+const TileLight = () => <Tile fill="#8b9dd4" stroke="#6c7db3" />;
+const TileDark = () => <Tile fill="#7c8fc9" stroke="#6c7db3" />;
+const TileWoodLight = () => <Tile fill="#c9a06a" stroke="#a37e4e" />;
+const TileWoodDark = () => <Tile fill="#b98e58" stroke="#a37e4e" />;
+const TileTrackLight = () => <Tile fill="#9fb4c7" stroke="#7d93a8" />;
+const TileTrackDark = () => <Tile fill="#8ba3b8" stroke="#7d93a8" />;
+const TileDeskLight = () => <Tile fill="#84ac8e" stroke="#688e72" />;
+const TileDeskDark = () => <Tile fill="#75a080" stroke="#688e72" />;
+
+// ---------------------------------------------------------------------------
+// Terrain features (flat on the floor, below units)
+// ---------------------------------------------------------------------------
+
+function TerrainMarbles() {
+  const marbles = [
+    { x: -14, y: -2, r: 4.5, fill: "#7fd1f0" },
+    { x: -2, y: 4, r: 5, fill: "#f19ad2" },
+    { x: 10, y: -4, r: 4, fill: "#f6c453" },
+    { x: 16, y: 4, r: 3.5, fill: "#a58bf2" },
+    { x: 2, y: -8, r: 3.5, fill: "#7fbf7f" },
+  ];
   return (
     <g>
-      <polygon points={diamondPoints()} fill="#7c8fc9" stroke="#6c7db3" strokeWidth={1} />
-      <polygon points={diamondPoints(0.8)} fill="none" stroke="#ffffff" strokeWidth={1} opacity={0.07} />
+      {marbles.map((m, i) => (
+        <g key={i}>
+          <ellipse cx={m.x} cy={m.y + m.r * 0.5} rx={m.r} ry={m.r * 0.4} fill="#1a1433" opacity={0.2} />
+          <circle cx={m.x} cy={m.y} r={m.r} fill={m.fill} stroke="#ffffff" strokeWidth={0.8} strokeOpacity={0.5} />
+          <circle cx={m.x - m.r * 0.3} cy={m.y - m.r * 0.35} r={m.r * 0.3} fill="#ffffff" opacity={0.8} />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+function TerrainCushion() {
+  return (
+    <g>
+      <polygon points={diamondPoints(0.78)} fill="#d977b0" stroke="#a95687" strokeWidth={1.5} />
+      <polygon points={diamondPoints(0.62)} fill="#e792c2" stroke="none" />
+      {/* seams + button */}
+      <path d="M -22 0 Q 0 -6 22 0 M -22 0 Q 0 6 22 0" stroke="#a95687" strokeWidth={1} fill="none" opacity={0.6} />
+      <circle cx={0} cy={0} r={2.4} fill="#a95687" />
     </g>
   );
 }
@@ -183,6 +222,87 @@ function RobotDasher() {
   );
 }
 
+function RobotSpinner() {
+  return (
+    <g>
+      <Shadow rx={17} />
+      {/* spinning tip */}
+      <polygon points="-3,-6 3,-6 0,0" fill="#3a414d" />
+      {/* cone body with stripes */}
+      <path d="M -16 -26 L 16 -26 L 3 -6 L -3 -6 Z" fill="#b0699b" stroke="#7e4a6f" strokeWidth={1.5} />
+      <path d="M -11 -19 L 11 -19 L 7.5 -13 L -7.5 -13 Z" fill="#f2c14e" opacity={0.85} />
+      {/* whirl arms */}
+      <g opacity={0.9}>
+        <path d="M -16 -26 Q -26 -28 -24 -35" stroke="#7e4a6f" strokeWidth={2.5} fill="none" />
+        <path d="M 16 -26 Q 26 -24 24 -17" stroke="#7e4a6f" strokeWidth={2.5} fill="none" />
+      </g>
+      {/* cap + eye */}
+      <ellipse cx={0} cy={-27} rx={16} ry={6} fill="#c98cb6" stroke="#7e4a6f" strokeWidth={1.5} />
+      <circle cx={0} cy={-34} r={6.5} fill="#8b95a7" stroke="#525b6b" strokeWidth={1.3} />
+      <RedEye cx={0} cy={-34} r={2.6} />
+      {/* handle */}
+      <rect x={-1.6} y={-46} width={3.2} height={7} rx={1.5} fill="#525b6b" />
+      <circle cx={0} cy={-47.5} r={2.6} fill="#f2c14e" stroke="#b58f33" strokeWidth={0.9} />
+    </g>
+  );
+}
+
+function RobotBomber() {
+  return (
+    <g>
+      <Shadow rx={16} />
+      {/* stubby feet */}
+      <rect x={-10} y={-6} width={7} height={6} rx={1.5} fill="#525b6b" stroke="#3a414d" strokeWidth={1.1} />
+      <rect x={3} y={-6} width={7} height={6} rx={1.5} fill="#525b6b" stroke="#3a414d" strokeWidth={1.1} />
+      {/* round bomb body */}
+      <circle cx={0} cy={-20} r={14.5} fill="#4a5162" stroke="#2f3542" strokeWidth={1.5} />
+      {/* warning stripes */}
+      <path d="M -14 -24 A 14.5 14.5 0 0 1 -6 -33 L 0 -27 L -8 -18 Z" fill="#f2c14e" opacity={0.9} />
+      <path d="M 14 -16 A 14.5 14.5 0 0 1 6 -7 L 0 -13 L 8 -22 Z" fill="#f2c14e" opacity={0.9} />
+      <RedEye cx={-4} cy={-21} r={2.4} />
+      <RedEye cx={4} cy={-21} r={2.4} />
+      {/* fuse with spark */}
+      <path d="M 0 -34 Q 3 -40 8 -41" stroke="#8b95a7" strokeWidth={2.2} fill="none" />
+      <g>
+        <circle cx={9.5} cy={-42} r={3.2} fill="#ff9d2e" />
+        <circle cx={9.5} cy={-42} r={1.4} fill="#ffe08a" />
+      </g>
+    </g>
+  );
+}
+
+function RobotBoss() {
+  return (
+    <g>
+      <Shadow rx={23} />
+      {/* massive feet */}
+      <rect x={-19} y={-9} width={14} height={9} rx={2} fill="#4c3f38" stroke="#332a25" strokeWidth={1.4} />
+      <rect x={5} y={-9} width={14} height={9} rx={2} fill="#4c3f38" stroke="#332a25" strokeWidth={1.4} />
+      {/* hulking rusty body */}
+      <rect x={-19} y={-40} width={38} height={32} rx={4} fill="#8a6a52" stroke="#5b4536" strokeWidth={1.8} />
+      <rect x={-13} y={-35} width={26} height={13} rx={2.5} fill="#a58469" />
+      {/* rust patches + rivets */}
+      <circle cx={-11} cy={-15} r={3.4} fill="#b3502e" opacity={0.75} />
+      <circle cx={13} cy={-31} r={2.8} fill="#b3502e" opacity={0.75} />
+      <circle cx={-15.5} cy={-37} r={1.3} fill="#5b4536" />
+      <circle cx={15.5} cy={-37} r={1.3} fill="#5b4536" />
+      <circle cx={-15.5} cy={-11} r={1.3} fill="#5b4536" />
+      <circle cx={15.5} cy={-11} r={1.3} fill="#5b4536" />
+      {/* crushing arms */}
+      <rect x={-27} y={-36} width={8} height={22} rx={3.5} fill="#6e523f" stroke="#5b4536" strokeWidth={1.5} />
+      <rect x={19} y={-36} width={8} height={22} rx={3.5} fill="#6e523f" stroke="#5b4536" strokeWidth={1.5} />
+      {/* jagged mouth plate */}
+      <path d="M -9 -12 L -6 -16 L -3 -12 L 0 -16 L 3 -12 L 6 -16 L 9 -12" stroke="#332a25" strokeWidth={1.6} fill="none" />
+      {/* head with horns */}
+      <rect x={-13} y={-57} width={26} height={19} rx={3.5} fill="#6e523f" stroke="#332a25" strokeWidth={1.8} />
+      <polygon points="-13,-55 -20,-62 -11,-58" fill="#4c3f38" />
+      <polygon points="13,-55 20,-62 11,-58" fill="#4c3f38" />
+      <RedEye cx={-5.5} cy={-48} r={3.4} />
+      <RedEye cx={5.5} cy={-48} r={3.4} />
+    </g>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Props
 // ---------------------------------------------------------------------------
@@ -267,6 +387,83 @@ function Blocks() {
   );
 }
 
+function Book({ x, y, w, fill, rotate = 0 }: { x: number; y: number; w: number; fill: string; rotate?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) rotate(${rotate})`}>
+      <rect x={-w / 2} y={-4.5} width={w} height={9} rx={1.5} fill={fill} stroke="#3f3654" strokeWidth={1.2} />
+      <rect x={-w / 2 + 2} y={-4.5} width={3} height={9} fill="#ffffff" opacity={0.35} />
+    </g>
+  );
+}
+
+function Books() {
+  return (
+    <g>
+      <Shadow rx={16} />
+      <Book x={0} y={-6} w={30} fill="#5b8fd9" />
+      <Book x={-1} y={-15} w={27} fill="#e2635e" rotate={-3} />
+      <Book x={2} y={-24} w={28} fill="#7fbf7f" rotate={2} />
+      <Book x={0} y={-33} w={24} fill="#f2c14e" rotate={-2} />
+    </g>
+  );
+}
+
+function BooksToppled() {
+  return (
+    <g opacity={0.95}>
+      <Book x={-13} y={-4} w={26} fill="#5b8fd9" rotate={-14} />
+      <Book x={6} y={-3} w={26} fill="#e2635e" rotate={22} />
+      <Book x={14} y={-8} w={24} fill="#7fbf7f" rotate={64} />
+      <Book x={-4} y={-9} w={22} fill="#f2c14e" rotate={-38} />
+    </g>
+  );
+}
+
+function MusicBox() {
+  return (
+    <g>
+      <Shadow rx={15} />
+      {/* box */}
+      <rect x={-14} y={-20} width={28} height={17} rx={3} fill="#d977b0" stroke="#a95687" strokeWidth={1.5} />
+      <rect x={-11} y={-17} width={22} height={11} rx={2} fill="#e792c2" />
+      {/* crank */}
+      <path d="M 14 -14 Q 21 -14 21 -8" stroke="#a95687" strokeWidth={2.2} fill="none" />
+      <circle cx={21} cy={-7} r={2.4} fill="#f6c453" stroke="#d9a63e" strokeWidth={1} />
+      {/* dancing figure */}
+      <line x1={0} y1={-20} x2={0} y2={-27} stroke="#a95687" strokeWidth={1.6} />
+      <circle cx={0} cy={-32} r={4.5} fill="#fdfbff" stroke="#c9b8d8" strokeWidth={1.2} />
+      <polygon points="-5,-27 5,-27 0,-21" fill="#a58bf2" />
+      {/* floating note */}
+      <g transform="translate(-12 -34)">
+        <ellipse cx={0} cy={2} rx={2.4} ry={1.8} fill="#4d4358" />
+        <line x1={2.2} y1={1.5} x2={2.2} y2={-6} stroke="#4d4358" strokeWidth={1.4} />
+        <path d="M 2.2 -6 Q 6 -5 6 -2" stroke="#4d4358" strokeWidth={1.4} fill="none" />
+      </g>
+    </g>
+  );
+}
+
+function MusicBoxToppled() {
+  return (
+    <g opacity={0.95}>
+      <g transform="rotate(78)">
+        <rect x={-14} y={-16} width={28} height={16} rx={3} fill="#d977b0" stroke="#a95687" strokeWidth={1.5} />
+        <rect x={-11} y={-13} width={22} height={10} rx={2} fill="#e792c2" />
+      </g>
+      <circle cx={14} cy={-10} r={2.4} fill="#f6c453" stroke="#d9a63e" strokeWidth={1} />
+      {/* spilled notes */}
+      <g transform="translate(-16 -14) scale(0.8)">
+        <ellipse cx={0} cy={2} rx={2.4} ry={1.8} fill="#4d4358" />
+        <line x1={2.2} y1={1.5} x2={2.2} y2={-6} stroke="#4d4358" strokeWidth={1.4} />
+      </g>
+      <g transform="translate(18 -20) scale(0.7)">
+        <ellipse cx={0} cy={2} rx={2.4} ry={1.8} fill="#4d4358" />
+        <line x1={2.2} y1={1.5} x2={2.2} y2={-6} stroke="#4d4358" strokeWidth={1.4} />
+      </g>
+    </g>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Items
 // ---------------------------------------------------------------------------
@@ -292,14 +489,29 @@ function Missing() {
 const registry: Record<string, () => ReactElement> = {
   "tile-light": TileLight,
   "tile-dark": TileDark,
+  "tile-wood-light": TileWoodLight,
+  "tile-wood-dark": TileWoodDark,
+  "tile-track-light": TileTrackLight,
+  "tile-track-dark": TileTrackDark,
+  "tile-desk-light": TileDeskLight,
+  "tile-desk-dark": TileDeskDark,
+  "terrain-marbles": TerrainMarbles,
+  "terrain-cushion": TerrainCushion,
   teddy: Teddy,
   bunny: Bunny,
   unicorn: Unicorn,
   "robot-stomper": RobotStomper,
   "robot-dasher": RobotDasher,
+  "robot-spinner": RobotSpinner,
+  "robot-bomber": RobotBomber,
+  "robot-boss": RobotBoss,
   tower: Tower,
   "tower-toppled": TowerToppled,
   blocks: Blocks,
+  books: Books,
+  "books-toppled": BooksToppled,
+  musicbox: MusicBox,
+  "musicbox-toppled": MusicBoxToppled,
   "windup-key": WindupKey,
 };
 

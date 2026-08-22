@@ -9,7 +9,9 @@ export function TopBar({ game }: { game: GameState }) {
   return (
     <header className="flex items-center justify-between gap-3 px-4 py-3">
       <div>
-        <div className="text-xs uppercase tracking-widest text-foreground/60">{de.level1Name}</div>
+        <div className="text-xs uppercase tracking-widest text-foreground/60">
+          {de.levels[game.levelId]?.name ?? de.title}
+        </div>
         <div className="text-lg font-bold">{de.round(game.round, game.roundsToSurvive)}</div>
       </div>
       <div className="text-center text-sm text-foreground/80">{de.objective(game.roundsToSurvive)}</div>

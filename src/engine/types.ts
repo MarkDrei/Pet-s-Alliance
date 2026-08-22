@@ -32,7 +32,15 @@ export interface HeroDef {
   visual: string;
 }
 
-export type RobotBehavior = "stomper" | "dasher";
+/**
+ * - stomper: rook-moves toward the nearest chaos target, smashes it when adjacent.
+ * - dasher: charges straight along its facing, rams the first thing in the lane.
+ * - spinner: rook-moves toward the nearest target, then whirls — hits ALL four
+ *   adjacent tiles every turn.
+ * - bomber: rook-moves toward the nearest chaos target and self-destructs when
+ *   it arrives, blasting all four adjacent tiles.
+ */
+export type RobotBehavior = "stomper" | "dasher" | "spinner" | "bomber";
 
 export interface RobotDef {
   id: string;
@@ -40,6 +48,8 @@ export interface RobotDef {
   move: number;
   damage: number;
   behavior: RobotBehavior;
+  /** Too heavy for the plushies to push or nudge (boss robots). */
+  heavy?: boolean;
   visual: string;
 }
 
@@ -53,6 +63,20 @@ export interface PropDef {
 
 export interface ItemDef {
   id: string;
+  visual: string;
+}
+
+/**
+ * - marbles: robots that move onto them keep sliding in their movement
+ *   direction until they leave the marbles, hit a blocker, or tumble off the
+ *   board. Plushies hop over them carefully and are unaffected.
+ * - cushion: soft ground robots cannot roll onto; plushies may stand on it.
+ */
+export type TerrainKind = "marbles" | "cushion";
+
+export interface TerrainDef {
+  id: string;
+  kind: TerrainKind;
   visual: string;
 }
 
@@ -74,8 +98,12 @@ export interface LevelDef {
   robotStarts: { defId: string; pos: Vec; facing: Direction }[];
   spawns: SpawnDef[];
   props: { defId: string; pos: Vec }[];
+  /** Terrain features on the floor (marble lanes, cushions). */
+  terrain?: { defId: string; pos: Vec }[];
   /** Item def ids available in this level. */
   items: string[];
+  /** Floor tile visuals for this environment (checkerboard light/dark). */
+  floor?: { light: string; dark: string };
 }
 
 /** Lookup registry for all static definitions, passed into engine functions. */
@@ -84,6 +112,7 @@ export interface Content {
   robots: Record<string, RobotDef>;
   props: Record<string, PropDef>;
   items: Record<string, ItemDef>;
+  terrains: Record<string, TerrainDef>;
 }
 
 // ---------------------------------------------------------------------------
@@ -106,7 +135,11 @@ export interface RobotIntent {
   path: Vec[];
   /** Tile the robot plans to attack after moving, if any. */
   attackTile: Vec | null;
-  /** The stumble continues past the board edge: the robot will fall off. */
+  /** Area attack tiles (spinner whirl, bomber blast) after moving. */
+  attackTiles?: Vec[];
+  /** The robot will blow itself up after moving (bomber). */
+  explodes?: boolean;
+  /** The movement continues past the board edge: the robot will fall off. */
   exitsBoard?: boolean;
 }
 
@@ -146,6 +179,7 @@ export type GameEvent =
   | { type: "heroDown"; heroId: string }
   | { type: "robotBumped"; robotId: string }
   | { type: "robotDestroyed"; robotId: string }
+  | { type: "robotExploded"; robotId: string }
   | { type: "robotStunnedSkip"; robotId: string }
   | { type: "robotSpawned"; robotId: string }
   | { type: "robotExited"; robotId: string };
@@ -160,6 +194,10 @@ export interface GameState {
   heroes: HeroState[];
   robots: RobotState[];
   props: PropState[];
+  /** Static terrain features, copied from the level definition. */
+  terrain: { defId: string; pos: Vec }[];
+  /** Floor tile visuals of this level's environment. */
+  floor: { light: string; dark: string };
   items: ItemState[];
   /** Robots not yet on the board (copied from the level definition). */
   pendingSpawns: SpawnDef[];

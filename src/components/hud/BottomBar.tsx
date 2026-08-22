@@ -139,6 +139,9 @@ export function BottomBar({
                 <span className="text-xs text-foreground/70">
                   {de.stats.move} {robotDef.move} · {de.stats.damage} {robotDef.damage}
                 </span>
+                {robotDef.heavy && (
+                  <span className="text-xs font-semibold text-danger">{de.heavyLabel}</span>
+                )}
                 {robot.stunned && <span className="text-xs text-accent">{de.stunnedLabel}</span>}
               </div>
               <div className="text-xs text-foreground/80">{robotText.description}</div>

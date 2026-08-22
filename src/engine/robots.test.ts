@@ -245,3 +245,128 @@ describe("computeIntent for confused robots", () => {
     expect(intent.path).toEqual([vec(4, 3), vec(5, 3)]);
   });
 });
+
+describe("spinner", () => {
+  it("plans a whirl into all four adjacent tiles after moving", () => {
+    const state = createGame(
+      content,
+      testLevel({
+        robotStarts: [{ defId: "spinner", pos: vec(3, 3), facing: "south" }],
+        props: [{ defId: "tower", pos: vec(3, 5) }],
+      }),
+    );
+    const intent = state.robots[0].intent!;
+    expect(intent.path).toEqual([vec(3, 4)]);
+    expect(intent.attackTiles).toContainEqual(vec(3, 5));
+    expect(intent.attackTiles).toContainEqual(vec(2, 4));
+    expect(intent.attackTiles).toContainEqual(vec(4, 4));
+    expect(intent.attackTiles).toContainEqual(vec(3, 3));
+  });
+
+  it("hits towers and heroes on all sides at once", () => {
+    const state = createGame(
+      content,
+      testLevel({
+        heroStarts: [{ defId: "tank", pos: vec(2, 4) }],
+        robotStarts: [{ defId: "spinner", pos: vec(3, 3), facing: "south" }],
+        props: [{ defId: "tower", pos: vec(3, 5) }],
+      }),
+    );
+    const next = endPlayerTurn(content, state);
+    expect(next.props[0].toppled).toBe(true);
+    expect(next.heroes[0].hp).toBe(4);
+  });
+});
+
+describe("bomber", () => {
+  it("explodes next to its target, toppling it and destroying itself", () => {
+    const state = createGame(
+      content,
+      testLevel({
+        heroStarts: [{ defId: "tank", pos: vec(7, 7) }],
+        robotStarts: [{ defId: "bomber", pos: vec(0, 0), facing: "south" }],
+        props: [{ defId: "tower", pos: vec(0, 3) }],
+      }),
+    );
+    const intent = state.robots[0].intent!;
+    expect(intent.explodes).toBe(true);
+    expect(intent.attackTiles).toContainEqual(vec(0, 3));
+
+    const next = endPlayerTurn(content, state);
+    expect(next.props[0].toppled).toBe(true);
+    expect(next.robots).toHaveLength(0);
+    expect(next.events).toContainEqual(expect.objectContaining({ type: "robotExploded" }));
+  });
+
+  it("keeps marching while the target is still out of reach", () => {
+    const state = createGame(
+      content,
+      testLevel({
+        heroStarts: [{ defId: "tank", pos: vec(7, 7) }],
+        robotStarts: [{ defId: "bomber", pos: vec(0, 0), facing: "south" }],
+        props: [{ defId: "tower", pos: vec(0, 6) }],
+      }),
+    );
+    expect(state.robots[0].intent!.explodes).toBeFalsy();
+    const next = endPlayerTurn(content, state);
+    expect(next.robots).toHaveLength(1);
+    expect(next.props[0].toppled).toBe(false);
+  });
+});
+
+describe("marble terrain", () => {
+  it("a robot ending its move on marbles slides until it leaves them", () => {
+    const state = createGame(
+      content,
+      testLevel({
+        robotStarts: [{ defId: "stomper", pos: vec(0, 0), facing: "south" }],
+        props: [{ defId: "tower", pos: vec(0, 6) }],
+        terrain: [
+          { defId: "marbles", pos: vec(0, 2) },
+          { defId: "marbles", pos: vec(0, 3) },
+        ],
+      }),
+    );
+    const intent = state.robots[0].intent!;
+    expect(intent.path).toEqual([vec(0, 1), vec(0, 2), vec(0, 3), vec(0, 4)]);
+
+    const next = endPlayerTurn(content, state);
+    expect(next.robots[0].pos).toEqual(vec(0, 4));
+  });
+
+  it("a marble lane can carry a robot off the board edge", () => {
+    const state = createGame(
+      content,
+      testLevel({
+        heroStarts: [{ defId: "tank", pos: vec(7, 0) }],
+        robotStarts: [{ defId: "dasher", pos: vec(0, 4), facing: "south" }],
+        terrain: [
+          { defId: "marbles", pos: vec(0, 6) },
+          { defId: "marbles", pos: vec(0, 7) },
+        ],
+      }),
+    );
+    const intent = state.robots[0].intent!;
+    expect(intent.exitsBoard).toBe(true);
+
+    const next = endPlayerTurn(content, state);
+    expect(next.robots).toHaveLength(0);
+    expect(next.events).toContainEqual(expect.objectContaining({ type: "robotExited" }));
+  });
+});
+
+describe("cushion terrain", () => {
+  it("blocks robot movement lanes", () => {
+    const state = createGame(
+      content,
+      testLevel({
+        robotStarts: [{ defId: "stomper", pos: vec(0, 0), facing: "south" }],
+        props: [{ defId: "tower", pos: vec(0, 4) }],
+        terrain: [{ defId: "cushion", pos: vec(0, 2) }],
+      }),
+    );
+    const intent = state.robots[0].intent!;
+    // The lane toward the tower ends in front of the cushion.
+    expect(intent.path).toEqual([vec(0, 1)]);
+  });
+});

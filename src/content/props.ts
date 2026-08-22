@@ -12,4 +12,18 @@ export const PROPS: Record<string, PropDef> = {
     toppleable: false,
     visual: "blocks",
   },
+  /** Book stack: a chaos target in the reading corner. */
+  books: {
+    id: "books",
+    toppleable: true,
+    visual: "books",
+    toppledVisual: "books-toppled",
+  },
+  /** Music box: the most precious chaos target — it plays when it falls! */
+  musicbox: {
+    id: "musicbox",
+    toppleable: true,
+    visual: "musicbox",
+    toppledVisual: "musicbox-toppled",
+  },
 };

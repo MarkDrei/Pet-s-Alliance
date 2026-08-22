@@ -46,6 +46,31 @@ export function testContent(): Content {
         behavior: "dasher",
         visual: "robot-dasher",
       },
+      spinner: {
+        id: "spinner",
+        maxHp: 2,
+        move: 1,
+        damage: 1,
+        behavior: "spinner",
+        visual: "robot-spinner",
+      },
+      bomber: {
+        id: "bomber",
+        maxHp: 1,
+        move: 2,
+        damage: 2,
+        behavior: "bomber",
+        visual: "robot-bomber",
+      },
+      boss: {
+        id: "boss",
+        maxHp: 4,
+        move: 1,
+        damage: 2,
+        behavior: "stomper",
+        heavy: true,
+        visual: "robot-boss",
+      },
     },
     props: {
       tower: { id: "tower", toppleable: true, visual: "tower" },
@@ -53,6 +78,10 @@ export function testContent(): Content {
     },
     items: {
       "windup-key": { id: "windup-key", visual: "windup-key" },
+    },
+    terrains: {
+      marbles: { id: "marbles", kind: "marbles", visual: "terrain-marbles" },
+      cushion: { id: "cushion", kind: "cushion", visual: "terrain-cushion" },
     },
   };
 }

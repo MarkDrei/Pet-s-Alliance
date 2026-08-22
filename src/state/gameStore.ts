@@ -17,7 +17,7 @@ import {
   type GameState,
   type Vec,
 } from "@/engine";
-import { CONTENT, LEVEL_1 } from "@/content";
+import { CONTENT, LEVELS, LEVEL_1 } from "@/content";
 import type { UiEffect } from "@/components/board/effects";
 import { de, eventText } from "@/i18n/de";
 
@@ -60,6 +60,8 @@ export interface GameStore {
   setMode: (mode: InteractionMode) => void;
   tileClicked: (pos: Vec) => void;
   endTurn: () => void;
+  /** Starts a fresh run of the given level (falls back to level 1). */
+  startLevel: (levelId: string) => void;
   restart: () => void;
 }
 
@@ -130,6 +132,17 @@ export const useGameStore = create<GameStore>((set, get) => {
           if (robot) {
             spawnEffect({ kind: "poof", pos: robot.pos });
             spawnEffect({ kind: "impact", pos: robot.pos });
+          }
+          break;
+        }
+        case "robotExploded": {
+          const robot = before.robots.find((r) => r.id === event.robotId);
+          if (robot) {
+            // Blast at the bomber's final position: the end of its path.
+            const path = robot.intent?.path ?? [];
+            const at = path.length > 0 ? path[path.length - 1] : robot.pos;
+            spawnEffect({ kind: "crash", pos: at });
+            spawnEffect({ kind: "impact", pos: at });
           }
           break;
         }
@@ -317,10 +330,10 @@ export const useGameStore = create<GameStore>((set, get) => {
       appendLog(current, newEvents);
     },
 
-    restart: () => {
+    startLevel: (levelId) => {
       playbackToken++;
       set({
-        game: createGame(CONTENT, LEVEL_1),
+        game: createGame(CONTENT, LEVELS[levelId] ?? LEVEL_1),
         selectedHeroId: null,
         selectedRobotId: null,
         mode: "idle",
@@ -331,6 +344,10 @@ export const useGameStore = create<GameStore>((set, get) => {
         unitFx: {},
         log: [],
       });
+    },
+
+    restart: () => {
+      get().startLevel(get().game.levelId);
     },
   };
 });

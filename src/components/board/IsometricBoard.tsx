@@ -134,6 +134,8 @@ export function IsometricBoard({
       if (!robot.intent) continue;
       intentPathTiles.push(...robot.intent.path);
       if (robot.intent.attackTile) intentAttackTiles.push(robot.intent.attackTile);
+      // Area attacks (spinner whirl, bomber blast) mark every affected tile.
+      intentAttackTiles.push(...(robot.intent.attackTiles ?? []));
     }
   }
 
@@ -238,12 +240,22 @@ export function IsometricBoard({
         </linearGradient>
       </defs>
 
-      {/* Ground tiles */}
+      {/* Ground tiles (floor visuals come from the level's environment) */}
       {tiles.map((pos) => {
         const { sx, sy } = gridToScreen(pos);
         return (
           <g key={vecKey(pos)} transform={`translate(${sx} ${sy})`}>
-            <Sprite id={(pos.x + pos.y) % 2 === 0 ? "tile-light" : "tile-dark"} />
+            <Sprite id={(pos.x + pos.y) % 2 === 0 ? state.floor.light : state.floor.dark} />
+          </g>
+        );
+      })}
+
+      {/* Terrain features (marble lanes, cushions) lie flat on the floor */}
+      {state.terrain.map((feature, i) => {
+        const { sx, sy } = gridToScreen(feature.pos);
+        return (
+          <g key={`terrain-${i}-${vecKey(feature.pos)}`} transform={`translate(${sx} ${sy})`}>
+            <Sprite id={content.terrains[feature.defId].visual} />
           </g>
         );
       })}

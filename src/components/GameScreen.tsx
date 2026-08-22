@@ -1,6 +1,6 @@
 "use client";
 
-import { CONTENT } from "@/content";
+import { CONTENT, nextLevelId } from "@/content";
 import { IsometricBoard } from "@/components/board/IsometricBoard";
 import { BottomBar } from "@/components/hud/BottomBar";
 import { EventTicker } from "@/components/hud/EventTicker";
@@ -47,7 +47,14 @@ export function GameScreen() {
           onEndTurn={store.endTurn}
         />
       </div>
-      <GameOverOverlay game={game} onRestart={store.restart} />
+      <GameOverOverlay
+        game={game}
+        onRestart={store.restart}
+        onNextLevel={(() => {
+          const next = nextLevelId(game.levelId);
+          return next ? () => store.startLevel(next) : null;
+        })()}
+      />
     </div>
   );
 }

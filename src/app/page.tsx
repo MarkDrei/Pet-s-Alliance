@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { LevelSelect } from "@/components/menu/LevelSelect";
 import { Sprite } from "@/components/sprites/registry";
 import { de } from "@/i18n/de";
 
@@ -62,13 +62,8 @@ export default function TitlePage() {
 
       <p className="text-sm text-foreground/70">{de.intro}</p>
 
-      <div className="flex w-full flex-col gap-3">
-        <Link
-          href="/game"
-          className="rounded-2xl bg-accent px-6 py-4 text-xl font-bold text-background-deep shadow-lg transition-transform active:scale-[0.98]"
-        >
-          {de.play}
-        </Link>
+      <div className="flex w-full flex-col gap-4">
+        <LevelSelect />
         <button
           type="button"
           disabled

@@ -166,6 +166,53 @@ describe("shield (Funkelschild)", () => {
   });
 });
 
+describe("heavy robots", () => {
+  it("cannot be targeted by push or nudge", () => {
+    const state = createGame(
+      content,
+      testLevel({
+        heroStarts: [{ defId: "tank", pos: vec(2, 2) }],
+        robotStarts: [{ defId: "boss", pos: vec(2, 3), facing: "north" }],
+      }),
+    );
+    expect(abilityTargets(content, state, state.heroes[0].id)).toHaveLength(0);
+    const next = applyAbility(content, state, state.heroes[0].id, vec(2, 3));
+    expect(next).toBe(state);
+  });
+});
+
+describe("push onto marbles", () => {
+  it("slides the pushed robot along the lane", () => {
+    const state = createGame(
+      content,
+      testLevel({
+        heroStarts: [{ defId: "tank", pos: vec(2, 2) }],
+        robotStarts: [{ defId: "stomper", pos: vec(2, 3), facing: "north" }],
+        terrain: [
+          { defId: "marbles", pos: vec(2, 4) },
+          { defId: "marbles", pos: vec(2, 5) },
+        ],
+      }),
+    );
+    const next = applyAbility(content, state, state.heroes[0].id, vec(2, 3));
+    expect(next.robots[0].pos).toEqual(vec(2, 6));
+  });
+
+  it("can shove a robot across marbles right off the board", () => {
+    const state = createGame(
+      content,
+      testLevel({
+        heroStarts: [{ defId: "tank", pos: vec(2, 5) }],
+        robotStarts: [{ defId: "stomper", pos: vec(2, 6), facing: "north" }],
+        terrain: [{ defId: "marbles", pos: vec(2, 7) }],
+      }),
+    );
+    const next = applyAbility(content, state, state.heroes[0].id, vec(2, 6));
+    expect(next.robots).toHaveLength(0);
+    expect(next.events).toContainEqual(expect.objectContaining({ type: "robotExited" }));
+  });
+});
+
 describe("action economy", () => {
   it("a hero cannot use its ability twice per turn", () => {
     const state = createGame(

@@ -1,5 +1,13 @@
 import { inBounds, neighbors, vecEquals, vecKey } from "./grid";
-import type { Content, GameState, HeroState, PropState, RobotState, Vec } from "./types";
+import type {
+  Content,
+  GameState,
+  HeroState,
+  PropState,
+  RobotState,
+  TerrainKind,
+  Vec,
+} from "./types";
 
 export function heroAt(state: GameState, pos: Vec): HeroState | undefined {
   return state.heroes.find((h) => h.hp > 0 && vecEquals(h.pos, pos));
@@ -25,6 +33,20 @@ export function standingPropAt(state: GameState, pos: Vec): PropState | undefine
 export function isTileBlocked(state: GameState, pos: Vec): boolean {
   if (!inBounds(pos, state.gridSize)) return true;
   return Boolean(heroAt(state, pos) ?? robotAt(state, pos) ?? standingPropAt(state, pos));
+}
+
+/** Terrain kind on a tile, or null for plain floor. */
+export function terrainKindAt(content: Content, state: GameState, pos: Vec): TerrainKind | null {
+  const feature = state.terrain.find((t) => vecEquals(t.pos, pos));
+  return feature ? content.terrains[feature.defId].kind : null;
+}
+
+/**
+ * Robots additionally cannot roll onto cushions (soft ground). Plushies can,
+ * so hero movement keeps using plain `isTileBlocked`.
+ */
+export function isTileBlockedForRobot(content: Content, state: GameState, pos: Vec): boolean {
+  return isTileBlocked(state, pos) || terrainKindAt(content, state, pos) === "cushion";
 }
 
 /**

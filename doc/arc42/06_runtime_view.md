@@ -43,6 +43,11 @@ sequenceDiagram
 ## Key runtime rules
 
 - **Robots move like a rook in chess**: straight orthogonal lines only, never around corners. The stomper picks the straight line (and stop point) that gets it closest to its target each turn; the dasher charges along its facing direction. A blocker in the lane ends the line — robots cannot route around obstacles.
+- **Spinner (Kreisel)** moves like a stomper but attacks ALL four adjacent tiles after moving — heroes and towers alike. Its intent preview marks the whole whirl area.
+- **Bomber (Knalli)** marches toward the nearest chaos target and, once it stops adjacent to it, explodes: every adjacent tile is hit and the bomber removes itself (`robotExploded`). If its path is blocked before it arrives, it keeps marching next round.
+- **Heavy robots** (boss Rostzahn) cannot be pushed or nudged — they are excluded from those ability targets. The wind-up key still works on them.
+- **Marbles (Murmeln)** are terrain: a robot whose movement enters them keeps sliding in its movement direction until it leaves the marbles, hits a blocker, or tumbles off the board. This applies to planned moves (the intent preview shows the full slide) and to pushes. Plushies are not affected.
+- **Cushions (Kissen)** are terrain robots cannot enter; plushies can stand on them. A robot pushed against a cushion bumps like against any blocker.
 - **Intents are honest**: whenever the player changes the board (move, push, nudge), affected robot intents are recomputed so the preview always shows what will actually be attempted.
 - **Execution is defensive**: a robot stops its planned movement early if a tile became blocked, and its attack whiffs if the target tile is no longer adjacent.
 - **Shields** can protect plushies and standing towers; they last until the end of the coming robot phase and absorb exactly one hit (or one topple attempt).

@@ -19,7 +19,7 @@ npm run dev       # http://localhost:3000
 | `npm run test` | Run the Vitest suite (engine + component tests) |
 | `npm run test:watch` | Tests in watch mode |
 | `npm run lint` | ESLint |
-| `npm run build` | Production build |
+| `npm run build` | Static export to `out/` (hosted under `/pets/`) |
 
 ## Tech stack
 
@@ -40,6 +40,10 @@ src/
   i18n/         German player-facing strings
 doc/            Arc42 architecture documentation (keep up to date! see AGENTS.md)
 ```
+
+## Static hosting
+
+`npm run build` writes a static site to `out/`. Copy **everything inside `out/`** into a `pets` folder on the webserver (so the game is at `https://your-host/pets/`). Details: [doc/arc42/07_deployment_view.md](doc/arc42/07_deployment_view.md).
 
 ## Architecture documentation
 

@@ -1,7 +1,7 @@
 import { publicUrl } from "@/assetUrl";
 
 /**
- * Descriptors for the pixel-art images served from `public/sprites/`.
+ * Descriptors for the sprite images served from `public/sprites/`.
  *
  * An image is treated as a grid of equally sized square frames; a single still
  * sprite is simply a one-frame grid. `anchorX`/`anchorY` are measured in source
@@ -26,6 +26,18 @@ export type SpriteSheet = {
    * details like eyes flicker.
    */
   rendering?: "pixelated" | "smooth";
+};
+
+/** Standing teddy hero, a single frame. Taller and wider than the bunny: he is the tank. */
+export const TEDDY: SpriteSheet = {
+  href: publicUrl("/sprites/heroes/teddy.png"),
+  frame: 256,
+  widthPx: 256,
+  heightPx: 256,
+  anchorX: 128,
+  anchorY: 256,
+  scale: 0.219,
+  rendering: "smooth",
 };
 
 /** Standing bunny hero, a single frame. */

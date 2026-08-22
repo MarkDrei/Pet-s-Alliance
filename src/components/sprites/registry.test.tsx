@@ -12,11 +12,13 @@ describe("sprite registry", () => {
     },
   );
 
-  it("renders the bunny from its sprite image, cropped to the idle frame", () => {
-    const { container } = render(<svg>{<Sprite id="bunny" />}</svg>);
-    const image = container.querySelector("image");
-    expect(image).toHaveAttribute("href", publicUrl("/sprites/heroes/bunny.png"));
-    expect(container.querySelector("svg svg")).toHaveAttribute("viewBox", "0 0 128 128");
+  it.each([
+    ["bunny", "/sprites/heroes/bunny.png", "0 0 128 128"],
+    ["teddy", "/sprites/heroes/teddy.png", "0 0 256 256"],
+  ])("renders the %s from its sprite image, cropped to the idle frame", (id, file, viewBox) => {
+    const { container } = render(<svg>{<Sprite id={id} />}</svg>);
+    expect(container.querySelector("image")).toHaveAttribute("href", publicUrl(file));
+    expect(container.querySelector("svg svg")).toHaveAttribute("viewBox", viewBox);
   });
 
   it("renders a magenta placeholder for unknown ids", () => {

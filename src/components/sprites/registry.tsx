@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { diamondPoints } from "@/components/board/iso";
-import { BUNNY, IDLE_FRAME, type SpriteSheet } from "./sheets";
+import { BUNNY, IDLE_FRAME, type SpriteSheet, TEDDY } from "./sheets";
 
 /**
  * All visuals are looked up here by id. An id maps either to a hand-drawn SVG
@@ -82,33 +82,7 @@ function TileDark() {
 // ---------------------------------------------------------------------------
 
 function Teddy() {
-  return (
-    <g>
-      <Shadow rx={19} />
-      {/* legs */}
-      <ellipse cx={-8} cy={-4} rx={6.5} ry={5} fill="#96613c" stroke="#6e4527" strokeWidth={1.2} />
-      <ellipse cx={8} cy={-4} rx={6.5} ry={5} fill="#96613c" stroke="#6e4527" strokeWidth={1.2} />
-      {/* body */}
-      <ellipse cx={0} cy={-18} rx={15} ry={14.5} fill="#b07b4f" stroke="#7c5233" strokeWidth={1.5} />
-      <ellipse cx={0} cy={-15} rx={9} ry={8.5} fill="#e3c095" />
-      {/* arms */}
-      <circle cx={-14.5} cy={-21} r={5.5} fill="#a9744a" stroke="#7c5233" strokeWidth={1.2} />
-      <circle cx={14.5} cy={-21} r={5.5} fill="#a9744a" stroke="#7c5233" strokeWidth={1.2} />
-      {/* head */}
-      <circle cx={0} cy={-40} r={12.5} fill="#b07b4f" stroke="#7c5233" strokeWidth={1.5} />
-      <circle cx={-9.5} cy={-49.5} r={5} fill="#b07b4f" stroke="#7c5233" strokeWidth={1.2} />
-      <circle cx={9.5} cy={-49.5} r={5} fill="#b07b4f" stroke="#7c5233" strokeWidth={1.2} />
-      <circle cx={-9.5} cy={-49.5} r={2.3} fill="#e3c095" />
-      <circle cx={9.5} cy={-49.5} r={2.3} fill="#e3c095" />
-      {/* face */}
-      <ellipse cx={0} cy={-36} rx={6.5} ry={5.5} fill="#e3c095" />
-      <ellipse cx={0} cy={-38.5} rx={2.6} ry={2} fill="#4a3220" />
-      <circle cx={-4.8} cy={-43} r={1.7} fill="#33241a" />
-      <circle cx={4.8} cy={-43} r={1.7} fill="#33241a" />
-      {/* red scarf */}
-      <path d="M -11 -29 Q 0 -24 11 -29 L 10 -25 Q 0 -20.5 -10 -25 Z" fill="#d9534f" stroke="#a83c39" strokeWidth={1} />
-    </g>
-  );
+  return <SheetSprite sheet={TEDDY} shadowRx={18} />;
 }
 
 function Bunny() {

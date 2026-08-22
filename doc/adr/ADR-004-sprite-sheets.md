@@ -26,11 +26,12 @@ Scaling is per image: sources at or below their display size render `pixelated`,
 larger sources render smooth, because nearest-neighbour downscaling drops pixels
 and makes small features like eyes flicker.
 
-Characters are generated with `retro-diffusion/rd-plus` at 128px or larger with
-`remove_bg`. The animation model (`rd-animation`) is limited to 48px frames,
-where faces stop reading, so it is only worth it when animation matters more
-than looks. The first asset is the bunny (`rd-plus`, style `default`, 128px, from
-the prompt library of the `replicate-sprites` skill).
+Prompts and generation tooling live in the `replicate-sprites` skill. The bunny
+was generated with `retro-diffusion/rd-plus` (style `default`, 128px,
+`remove_bg`); its animation model (`rd-animation`) is limited to 48px frames,
+where faces stop reading, so it is only worth it when animation matters more than
+looks. Characters after the bunny come from a general-purpose model instead, see
+[ADR-006](ADR-006-hero-art-generation.md).
 
 ## Consequences
 

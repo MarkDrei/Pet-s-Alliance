@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { diamondPoints } from "@/components/board/iso";
-import { BUNNY, IDLE_FRAME, type SpriteSheet, TEDDY } from "./sheets";
+import { BUNNY, IDLE_FRAME, type SpriteSheet, TEDDY, UNICORN } from "./sheets";
 
 /**
  * All visuals are looked up here by id. An id maps either to a hand-drawn SVG
@@ -129,33 +129,7 @@ function Bunny() {
 }
 
 function Unicorn() {
-  return (
-    <g>
-      <Shadow rx={17} />
-      {/* legs */}
-      <rect x={-11} y={-8} width={5} height={8} rx={2} fill="#f3eef7" stroke="#c9b8d8" strokeWidth={1.1} />
-      <rect x={6} y={-8} width={5} height={8} rx={2} fill="#f3eef7" stroke="#c9b8d8" strokeWidth={1.1} />
-      {/* body */}
-      <ellipse cx={0} cy={-16} rx={13.5} ry={11} fill="#fdfbff" stroke="#c9b8d8" strokeWidth={1.5} />
-      {/* rainbow tail */}
-      <path d="M 12 -18 Q 20 -16 17 -8" stroke="#f19ad2" strokeWidth={2.4} fill="none" />
-      <path d="M 12.5 -15.5 Q 18.5 -13.5 15.5 -8" stroke="#a58bf2" strokeWidth={2.4} fill="none" />
-      <path d="M 12.5 -13 Q 16.5 -11 14 -7.5" stroke="#7fd1f0" strokeWidth={2.4} fill="none" />
-      {/* head */}
-      <circle cx={-1} cy={-35} r={9.5} fill="#fdfbff" stroke="#c9b8d8" strokeWidth={1.5} />
-      {/* horn */}
-      <polygon points="-3.6,-42.5 2.6,-42.5 -0.5,-57" fill="#f6c453" stroke="#d9a63e" strokeWidth={1.1} />
-      <path d="M -2.8 -46 L 1.9 -47.5 M -2 -50 L 1.2 -51.5" stroke="#d9a63e" strokeWidth={0.9} />
-      {/* mane */}
-      <circle cx={-9.5} cy={-41} r={4} fill="#f19ad2" />
-      <circle cx={-11.5} cy={-35} r={3.6} fill="#a58bf2" />
-      <circle cx={-11} cy={-29} r={3.3} fill="#7fd1f0" />
-      {/* face */}
-      <circle cx={-3.5} cy={-37} r={1.6} fill="#4d4358" />
-      <circle cx={3} cy={-37} r={1.6} fill="#4d4358" />
-      <ellipse cx={0} cy={-31.5} rx={3.6} ry={2.6} fill="#f7d7e3" />
-    </g>
-  );
+  return <SheetSprite sheet={UNICORN} shadowRx={17} />;
 }
 
 // ---------------------------------------------------------------------------

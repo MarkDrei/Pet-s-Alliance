@@ -15,6 +15,7 @@ describe("sprite registry", () => {
   it.each([
     ["bunny", "/sprites/heroes/bunny.png", "0 0 128 128"],
     ["teddy", "/sprites/heroes/teddy.png", "0 0 256 256"],
+    ["unicorn", "/sprites/heroes/unicorn.png", "0 0 256 256"],
   ])("renders the %s from its sprite image, cropped to the idle frame", (id, file, viewBox) => {
     const { container } = render(<svg>{<Sprite id={id} />}</svg>);
     expect(container.querySelector("image")).toHaveAttribute("href", publicUrl(file));

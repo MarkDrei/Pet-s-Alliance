@@ -40,6 +40,18 @@ export const TEDDY: SpriteSheet = {
   rendering: "smooth",
 };
 
+/** Sitting unicorn hero, a single frame. Same source size as the teddy. */
+export const UNICORN: SpriteSheet = {
+  href: publicUrl("/sprites/heroes/unicorn.png"),
+  frame: 256,
+  widthPx: 256,
+  heightPx: 256,
+  anchorX: 128,
+  anchorY: 256,
+  scale: 0.219,
+  rendering: "smooth",
+};
+
 /** Standing bunny hero, a single frame. */
 export const BUNNY: SpriteSheet = {
   href: publicUrl("/sprites/heroes/bunny.png"),

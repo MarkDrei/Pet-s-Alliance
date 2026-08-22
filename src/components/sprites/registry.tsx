@@ -1,11 +1,11 @@
 import type { ReactElement } from "react";
 import { diamondPoints } from "@/components/board/iso";
-import { BUNNY_WALK, IDLE_FRAME, type SpriteSheet } from "./sheets";
+import { BUNNY, IDLE_FRAME, type SpriteSheet } from "./sheets";
 
 /**
- * All visuals are looked up here by id. Today every id maps to a hand-drawn
- * SVG placeholder; later each can map to a sprite image component without
- * touching board or game code.
+ * All visuals are looked up here by id. An id maps either to a hand-drawn SVG
+ * placeholder or to a frame of a pixel-art sprite sheet, so art can be swapped
+ * in one entry at a time without touching board or game code.
  *
  * Convention: every sprite renders into a `<g>` whose origin is the CENTER of
  * the tile it stands on. Standing sprites extend upward (negative y).
@@ -16,8 +16,8 @@ function Shadow({ rx = 20 }: { rx?: number }) {
 }
 
 /**
- * Draws one frame of a sprite sheet, anchored like the drawn placeholders. The
- * nested `<svg>` crops the sheet to the frame, so switching frames later is a
+ * Draws one frame of a sprite image, anchored like the drawn placeholders. The
+ * nested `<svg>` crops to the frame, so animating a multi-frame sheet later is a
  * matter of passing different grid coordinates.
  */
 function SheetSprite({
@@ -46,7 +46,9 @@ function SheetSprite({
           href={sheet.href}
           width={sheet.widthPx}
           height={sheet.heightPx}
-          style={{ imageRendering: "pixelated" }}
+          style={{
+            imageRendering: sheet.rendering === "smooth" ? "auto" : "pixelated",
+          }}
         />
       </svg>
     </g>
@@ -110,7 +112,7 @@ function Teddy() {
 }
 
 function Bunny() {
-  return <SheetSprite sheet={BUNNY_WALK} shadowRx={14} />;
+  return <SheetSprite sheet={BUNNY} shadowRx={16} />;
 }
 
 function Unicorn() {

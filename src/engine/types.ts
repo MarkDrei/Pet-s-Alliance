@@ -137,7 +137,7 @@ export interface ItemState {
   used: boolean;
 }
 
-export type Phase = "playerTurn" | "victory" | "defeat";
+export type Phase = "playerTurn" | "robotTurn" | "victory" | "defeat";
 
 export type GameEvent =
   | { type: "towerToppled"; robotId: string; propId: string }
@@ -163,6 +163,12 @@ export interface GameState {
   items: ItemState[];
   /** Robots not yet on the board (copied from the level definition). */
   pendingSpawns: SpawnDef[];
+  /**
+   * Robots that still have to act in the current robot phase, in order.
+   * Filled by `beginRobotPhase`, drained one id per `executeNextRobot` so the
+   * UI can play the phase back robot by robot.
+   */
+  pendingRobotIds: string[];
   /** What happened during the last robot phase, for the UI to narrate. */
   events: GameEvent[];
   /** Monotonic counter used to mint unique unit ids. */

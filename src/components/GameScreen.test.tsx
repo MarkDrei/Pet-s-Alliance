@@ -1,9 +1,16 @@
 import { act } from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 import { useGameStore } from "@/state/gameStore";
 import { GameScreen } from "./GameScreen";
+
+/** Robot-phase playback is async (instant in tests, but still yields). */
+async function waitForPlayback() {
+  await waitFor(() => {
+    expect(useGameStore.getState().animating).toBe(false);
+  });
+}
 
 describe("GameScreen", () => {
   beforeEach(() => {
@@ -43,6 +50,7 @@ describe("GameScreen", () => {
     const user = userEvent.setup();
     render(<GameScreen />);
     await user.click(screen.getByRole("button", { name: "Zug beenden" }));
+    await waitForPlayback();
     expect(screen.getByText("Runde 2 von 5")).toBeInTheDocument();
   });
 
@@ -54,6 +62,7 @@ describe("GameScreen", () => {
       const { game } = useGameStore.getState();
       if (game.phase !== "playerTurn") break;
       await user.click(endTurn);
+      await waitForPlayback();
     }
     const { game } = useGameStore.getState();
     expect(["victory", "defeat"]).toContain(game.phase);

@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { chaosCount, createGame, endPlayerTurn, moveHero, applyItem } from "./game";
+import {
+  beginRobotPhase,
+  chaosCount,
+  createGame,
+  endPlayerTurn,
+  executeNextRobot,
+  finishRobotPhase,
+  moveHero,
+  applyItem,
+} from "./game";
 import { vec } from "./grid";
 import { testContent, testLevel } from "./testUtils";
 
@@ -150,6 +159,65 @@ describe("turn loop and outcomes", () => {
     expect(next.robots).toHaveLength(1);
     expect(next.robots[0].pos).toEqual(vec(7, 0));
     expect(next.events).toContainEqual(expect.objectContaining({ type: "robotSpawned" }));
+  });
+
+  it("plays the robot phase back one robot at a time", () => {
+    const state = createGame(
+      content,
+      testLevel({
+        heroStarts: [{ defId: "tank", pos: vec(7, 7) }],
+        robotStarts: [
+          { defId: "stomper", pos: vec(0, 0), facing: "south" },
+          { defId: "stomper", pos: vec(4, 0), facing: "south" },
+        ],
+        props: [{ defId: "tower", pos: vec(0, 4) }],
+        roundsToSurvive: 5,
+      }),
+    );
+
+    let step = beginRobotPhase(state);
+    expect(step.phase).toBe("robotTurn");
+    expect(step.pendingRobotIds).toHaveLength(2);
+
+    const firstId = step.pendingRobotIds[0];
+    const posBefore = step.robots.find((r) => r.id === firstId)!.pos;
+    step = executeNextRobot(content, step);
+    expect(step.pendingRobotIds).toHaveLength(1);
+    // Only the executed robot moved.
+    expect(step.robots.find((r) => r.id === firstId)!.pos).not.toEqual(posBefore);
+
+    // Finishing is refused while robots are still queued.
+    expect(finishRobotPhase(content, step)).toBe(step);
+
+    step = executeNextRobot(content, step);
+    expect(step.pendingRobotIds).toHaveLength(0);
+
+    const done = finishRobotPhase(content, step);
+    expect(done.phase).toBe("playerTurn");
+    expect(done.round).toBe(2);
+  });
+
+  it("step-wise execution matches the atomic endPlayerTurn", () => {
+    const state = createGame(
+      content,
+      testLevel({
+        heroStarts: [{ defId: "tank", pos: vec(7, 7) }],
+        robotStarts: [
+          { defId: "stomper", pos: vec(0, 0), facing: "south" },
+          { defId: "dasher", pos: vec(4, 0), facing: "south" },
+        ],
+        props: [{ defId: "tower", pos: vec(0, 4) }],
+        roundsToSurvive: 5,
+      }),
+    );
+
+    let stepWise = beginRobotPhase(state);
+    while (stepWise.pendingRobotIds.length > 0) {
+      stepWise = executeNextRobot(content, stepWise);
+    }
+    stepWise = finishRobotPhase(content, stepWise);
+
+    expect(stepWise).toEqual(endPlayerTurn(content, state));
   });
 
   it("delays a spawn when its tile is occupied", () => {

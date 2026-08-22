@@ -3,7 +3,8 @@
 import type { Content, Direction, GameState, RobotState, Vec } from "@/engine";
 import { directionFromTo, vecEquals, vecKey } from "@/engine";
 import { Sprite } from "@/components/sprites/registry";
-import { TILE_H, TILE_W, boardViewBox, diamondPoints, gridToScreen } from "./iso";
+import { EffectsLayer, type UiEffect } from "./effects";
+import { AXIS_X, AXIS_Y, boardViewBox, diamondPoints, gridToScreen } from "./iso";
 
 export type HighlightKind = "move" | "target";
 
@@ -12,23 +13,52 @@ export interface IsometricBoardProps {
   state: GameState;
   selectedHeroId: string | null;
   selectedRobotId: string | null;
+  /** Robot currently acting during robot-phase playback. */
+  activeRobotId: string | null;
   highlightTiles: Vec[];
   highlightKind: HighlightKind | null;
+  /** Duration units take to glide to a new position. */
+  moveDurationMs: number;
+  /** One-shot CSS animation class per unit id. */
+  unitFx: Record<string, string>;
+  effects: UiEffect[];
   onTileClick: (pos: Vec) => void;
 }
 
 interface Entity {
   key: string;
   pos: Vec;
+  /** Moving units glide between tiles; static props snap. */
+  moves: boolean;
   render: () => React.ReactElement;
 }
 
+/** Animated shimmer shown around shielded plushies and towers. */
+function ShieldAura() {
+  return (
+    <g>
+      <ellipse cx={0} cy={-2} rx={27} ry={14} fill="#8ef0ff" fillOpacity={0.12}>
+        <animate attributeName="fill-opacity" values="0.12;0.24;0.12" dur="1.6s" repeatCount="indefinite" />
+      </ellipse>
+      <ellipse cx={0} cy={-2} rx={27} ry={14} fill="none" stroke="#8ef0ff" strokeWidth={2} strokeDasharray="7 5">
+        <animate attributeName="stroke-dashoffset" values="0;24" dur="1.2s" repeatCount="indefinite" />
+      </ellipse>
+      <path d="M 0 -5 L 1.6 -1.6 L 5 0 L 1.6 1.6 L 0 5 L -1.6 1.6 L -5 0 L -1.6 -1.6 Z" fill="#d8fbff" transform="translate(-22 -8) scale(0.8)">
+        <animate attributeName="opacity" values="0;1;0" dur="1.8s" repeatCount="indefinite" />
+      </path>
+      <path d="M 0 -5 L 1.6 -1.6 L 5 0 L 1.6 1.6 L 0 5 L -1.6 1.6 L -5 0 L -1.6 -1.6 Z" fill="#d8fbff" transform="translate(23 -4) scale(0.6)">
+        <animate attributeName="opacity" values="0;1;0" dur="1.4s" begin="0.5s" repeatCount="indefinite" />
+      </path>
+    </g>
+  );
+}
+
 /**
- * Maps grid space onto the isometric ground plane: grid +x becomes the
- * down-right tile edge, grid +y the down-left one. Anything drawn inside
- * this transform lies flat on the floor like a painted marking.
+ * Maps grid space onto the (rotated) isometric ground plane using the same
+ * axis vectors as the tile projection. Anything drawn inside this transform
+ * lies flat on the floor like a painted marking.
  */
-const GROUND_TRANSFORM = `matrix(${TILE_W / 2} ${TILE_H / 2} ${-TILE_W / 2} ${TILE_H / 2} 0 0)`;
+const GROUND_TRANSFORM = `matrix(${AXIS_X.x} ${AXIS_X.y} ${AXIS_Y.x} ${AXIS_Y.y} 0 0)`;
 
 const GRID_ANGLE: Record<Direction, number> = {
   east: 0,
@@ -83,8 +113,12 @@ export function IsometricBoard({
   state,
   selectedHeroId,
   selectedRobotId,
+  activeRobotId,
   highlightTiles,
   highlightKind,
+  moveDurationMs,
+  unitFx,
+  effects,
   onTileClick,
 }: IsometricBoardProps) {
   const size = state.gridSize;
@@ -111,11 +145,10 @@ export function IsometricBoard({
     entities.push({
       key: prop.id,
       pos: prop.pos,
+      moves: false,
       render: () => (
         <g>
-          {prop.shielded && !prop.toppled && (
-            <ellipse cx={0} cy={-2} rx={27} ry={14} fill="#8ef0ff" fillOpacity={0.14} stroke="#8ef0ff" strokeWidth={2} strokeDasharray="6 4" />
-          )}
+          {prop.shielded && !prop.toppled && <ShieldAura />}
           <Sprite id={visual} />
         </g>
       ),
@@ -128,6 +161,7 @@ export function IsometricBoard({
     entities.push({
       key: hero.id,
       pos: hero.pos,
+      moves: true,
       render: () => (
         <g opacity={hero.hp <= 0 ? 0.3 : 1}>
           {selected && (
@@ -135,9 +169,7 @@ export function IsometricBoard({
               <animate attributeName="opacity" values="0.9;0.4;0.9" dur="1.4s" repeatCount="indefinite" />
             </ellipse>
           )}
-          {hero.shielded && (
-            <ellipse cx={0} cy={-2} rx={27} ry={14} fill="#8ef0ff" fillOpacity={0.14} stroke="#8ef0ff" strokeWidth={2} strokeDasharray="6 4" />
-          )}
+          {hero.shielded && <ShieldAura />}
           <g transform={hero.hp <= 0 ? "rotate(80) scale(1 0.9)" : undefined}>
             <Sprite id={def.visual} />
           </g>
@@ -149,14 +181,21 @@ export function IsometricBoard({
   for (const robot of state.robots) {
     const def = content.robots[robot.defId];
     const selected = robot.id === selectedRobotId;
+    const active = robot.id === activeRobotId;
     entities.push({
       key: robot.id,
       pos: robot.pos,
+      moves: true,
       render: () => (
         <g>
           {selected && (
             <ellipse cx={0} cy={0} rx={32} ry={16} fill="none" stroke="#ff9d9d" strokeWidth={2.5} strokeDasharray="8 5" opacity={0.9}>
               <animate attributeName="opacity" values="0.9;0.4;0.9" dur="1.4s" repeatCount="indefinite" />
+            </ellipse>
+          )}
+          {active && (
+            <ellipse cx={0} cy={0} rx={30} ry={15} fill="#ff6b6b" fillOpacity={0.25} stroke="#ff6b6b" strokeWidth={3}>
+              <animate attributeName="fill-opacity" values="0.25;0.45;0.25" dur="0.6s" repeatCount="indefinite" />
             </ellipse>
           )}
           <HeadingArrow direction={robotHeading(robot)} />
@@ -174,14 +213,21 @@ export function IsometricBoard({
     });
   }
 
-  entities.sort((a, b) => a.pos.x + a.pos.y - (b.pos.x + b.pos.y) || a.pos.y - b.pos.y);
+  // Painter's order: back-to-front by projected screen depth, which stays
+  // correct for any ground rotation.
+  entities.sort((a, b) => {
+    const pa = gridToScreen(a.pos);
+    const pb = gridToScreen(b.pos);
+    return pa.sy - pb.sy || pa.sx - pb.sx;
+  });
 
   const highlightColor = highlightKind === "move" ? "#7ef2b1" : "#ffd76a";
+  const shaking = effects.some((e) => e.kind === "crash");
 
   return (
     <svg
       viewBox={boardViewBox(size)}
-      className="block w-full max-h-full touch-manipulation select-none"
+      className={`block w-full max-h-full touch-manipulation select-none ${shaking ? "fx-board-shake" : ""}`}
       role="application"
       aria-label="Spielfeld"
     >
@@ -238,15 +284,33 @@ export function IsometricBoard({
         );
       })}
 
-      {/* Units and props, painter's order */}
+      {/* Units and props, painter's order. Moving units use a CSS transform
+          with a transition so position changes glide across the board (rook
+          moves are straight lines in iso space, so a single glide passes
+          exactly over the intermediate tiles). */}
       {entities.map((entity) => {
         const { sx, sy } = gridToScreen(entity.pos);
+        const fx = unitFx[entity.key];
         return (
-          <g key={entity.key} transform={`translate(${sx} ${sy})`} pointerEvents="none">
-            {entity.render()}
+          <g
+            key={entity.key}
+            pointerEvents="none"
+            {...(entity.moves
+              ? {
+                  style: {
+                    transform: `translate(${sx}px, ${sy}px)`,
+                    transition: `transform ${moveDurationMs}ms ease-in-out`,
+                  },
+                }
+              : { transform: `translate(${sx} ${sy})` })}
+          >
+            <g className={fx}>{entity.render()}</g>
           </g>
         );
       })}
+
+      {/* Transient effects (impacts, sparkles, poofs, floating text) */}
+      <EffectsLayer effects={effects} />
 
       {/* Invisible tap layer so taps always resolve to a tile */}
       {tiles.map((pos) => {

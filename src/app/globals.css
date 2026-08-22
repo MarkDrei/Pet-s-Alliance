@@ -29,3 +29,113 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   min-height: 100dvh;
 }
+
+/* One-shot unit animations, attached by the game store via unitFx. */
+
+@keyframes fx-hop {
+  0% { transform: translateY(0) scale(1, 1); }
+  40% { transform: translateY(-16px) scale(1.06, 0.94); }
+  70% { transform: translateY(0) scale(0.94, 1.06); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+.fx-hop {
+  animation: fx-hop 0.45s ease;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+@keyframes fx-wobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(16deg); }
+  55% { transform: rotate(-13deg); }
+  80% { transform: rotate(6deg); }
+}
+.fx-wobble {
+  animation: fx-wobble 0.55s ease;
+  transform-box: fill-box;
+  transform-origin: 50% 85%;
+}
+
+@keyframes fx-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+.fx-shake {
+  animation: fx-shake 0.4s ease;
+}
+
+@keyframes fx-flinch {
+  0%, 100% { opacity: 1; }
+  25% { opacity: 0.25; }
+  50% { opacity: 1; }
+  75% { opacity: 0.35; }
+}
+.fx-flinch {
+  animation: fx-flinch 0.5s linear;
+}
+
+@keyframes fx-lunge {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  35% { transform: translateY(-6px) scale(1.1, 0.92); }
+  60% { transform: translateY(0) scale(0.96, 1.04); }
+}
+.fx-lunge {
+  animation: fx-lunge 0.35s ease;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+/* Robot revs up before acting: shivers and puffs up. */
+@keyframes fx-windup {
+  0%, 100% { transform: translateX(0) scale(1); }
+  15% { transform: translateX(-2px) scale(1.02); }
+  35% { transform: translateX(2px) scale(1.05); }
+  55% { transform: translateX(-3px) scale(1.08); }
+  75% { transform: translateX(3px) scale(1.06); }
+  90% { transform: translateX(-1px) scale(1.02); }
+}
+.fx-windup {
+  animation: fx-windup 0.5s ease-in-out;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+/* Stomper locomotion: heavy rocking march while gliding. */
+@keyframes fx-march {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-6px) rotate(-4deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+  75% { transform: translateY(-6px) rotate(4deg); }
+}
+.fx-march {
+  animation: fx-march 0.34s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+/* Dasher locomotion: leans into the sprint and vibrates. */
+@keyframes fx-dash {
+  0%, 100% { transform: translateY(-1px) rotate(7deg); }
+  50% { transform: translateY(-3px) rotate(10deg); }
+}
+.fx-dash {
+  animation: fx-dash 0.16s linear infinite;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+/* The whole board rattles when a tower crashes down. */
+@keyframes fx-board-shake {
+  0%, 100% { transform: translate(0, 0); }
+  15% { transform: translate(-7px, 4px); }
+  35% { transform: translate(6px, -3px); }
+  55% { transform: translate(-5px, 2px); }
+  75% { transform: translate(3px, -2px); }
+  90% { transform: translate(-2px, 1px); }
+}
+.fx-board-shake {
+  animation: fx-board-shake 0.5s ease;
+}

@@ -122,56 +122,56 @@ export function computeAllIntents(content: Content, state: GameState): void {
   }
 }
 
-/** Executes all robot intents in order, mutating `state` and appending events. */
-export function executeRobotPhase(content: Content, state: GameState): void {
-  for (const robot of [...state.robots]) {
-    // May have been destroyed earlier in this phase (not possible today, but
-    // cheap to guard against once robots can damage each other).
-    if (!state.robots.includes(robot)) continue;
+/**
+ * Executes a single robot's intent, mutating `state` and appending events.
+ * Robots that no longer exist (e.g. already fell off the board) are skipped.
+ */
+export function executeRobot(content: Content, state: GameState, robotId: string): void {
+  const robot = state.robots.find((r) => r.id === robotId);
+  if (!robot) return;
 
-    if (robot.stunned) {
-      robot.stunned = false;
-      robot.intent = null;
-      state.events.push({ type: "robotStunnedSkip", robotId: robot.id });
-      continue;
-    }
-
-    const intent = robot.intent ?? { path: [], attackTile: null };
-
-    // Move along the planned path, stopping if a tile became blocked.
-    let completedPath = true;
-    for (const tile of intent.path) {
-      if (isTileBlocked(state, tile)) {
-        completedPath = false;
-        break;
-      }
-      const dir = directionFromTo(robot.pos, tile);
-      if (dir) robot.facing = dir;
-      robot.pos = tile;
-    }
-
-    // A stumbling robot that reaches the edge falls off the board.
-    if (intent.exitsBoard && completedPath) {
-      state.robots = state.robots.filter((r) => r.id !== robot.id);
-      state.events.push({ type: "robotExited", robotId: robot.id });
-      continue;
-    }
-
-    // Attack the planned tile if still adjacent and still occupied.
-    if (intent.attackTile && isOrthogonallyAdjacent(robot.pos, intent.attackTile)) {
-      resolveAttack(content, state, robot, intent.attackTile);
-    }
-
-    // A dasher stuck against a wall turns to find a new lane.
-    const def = content.robots[robot.defId];
-    const usesDirectional = def.behavior === "dasher" || robot.confused;
-    if (usesDirectional && intent.path.length === 0 && !intent.attackTile) {
-      robot.facing = CLOCKWISE[robot.facing];
-    }
-
-    robot.confused = false;
+  if (robot.stunned) {
+    robot.stunned = false;
     robot.intent = null;
+    state.events.push({ type: "robotStunnedSkip", robotId: robot.id });
+    return;
   }
+
+  const intent = robot.intent ?? { path: [], attackTile: null };
+
+  // Move along the planned path, stopping if a tile became blocked.
+  let completedPath = true;
+  for (const tile of intent.path) {
+    if (isTileBlocked(state, tile)) {
+      completedPath = false;
+      break;
+    }
+    const dir = directionFromTo(robot.pos, tile);
+    if (dir) robot.facing = dir;
+    robot.pos = tile;
+  }
+
+  // A stumbling robot that reaches the edge falls off the board.
+  if (intent.exitsBoard && completedPath) {
+    state.robots = state.robots.filter((r) => r.id !== robot.id);
+    state.events.push({ type: "robotExited", robotId: robot.id });
+    return;
+  }
+
+  // Attack the planned tile if still adjacent and still occupied.
+  if (intent.attackTile && isOrthogonallyAdjacent(robot.pos, intent.attackTile)) {
+    resolveAttack(content, state, robot, intent.attackTile);
+  }
+
+  // A dasher stuck against a wall turns to find a new lane.
+  const def = content.robots[robot.defId];
+  const usesDirectional = def.behavior === "dasher" || robot.confused;
+  if (usesDirectional && intent.path.length === 0 && !intent.attackTile) {
+    robot.facing = CLOCKWISE[robot.facing];
+  }
+
+  robot.confused = false;
+  robot.intent = null;
 }
 
 function resolveAttack(content: Content, state: GameState, robot: RobotState, tile: Vec): void {

@@ -21,6 +21,12 @@ export const de = {
   chaos: "Chaos",
   endTurn: "Zug beenden",
   robotsAreComing: "Die Roboter zeigen ihren Plan …",
+  robotPhase: "Die Roboter sind dran …",
+
+  fx: {
+    hit: "-1",
+    stunned: "Zzz",
+  },
 
   victoryTitle: "Geschafft!",
   victoryText: "Die Kinder haben friedlich weitergeschlafen. Gut gemacht, Plüschtiere!",

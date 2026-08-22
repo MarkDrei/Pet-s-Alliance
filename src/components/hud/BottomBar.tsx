@@ -11,6 +11,8 @@ interface BottomBarProps {
   selectedHeroId: string | null;
   selectedRobotId: string | null;
   mode: InteractionMode;
+  /** True while the robot phase is being played back; inputs are locked. */
+  busy: boolean;
   onSetMode: (mode: InteractionMode) => void;
   onEndTurn: () => void;
 }
@@ -56,6 +58,7 @@ export function BottomBar({
   selectedHeroId,
   selectedRobotId,
   mode,
+  busy,
   onSetMode,
   onEndTurn,
 }: BottomBarProps) {
@@ -68,8 +71,9 @@ export function BottomBar({
   const item = game.items.find((i) => !i.used);
   const itemText = item ? de.items[item.defId] : null;
 
-  const targetHint =
-    mode === "move"
+  const targetHint = busy
+    ? de.robotPhase
+    : mode === "move"
       ? de.targetHint.move
       : mode === "ability" && heroDef
         ? de.targetHint[heroDef.ability.id]
@@ -167,8 +171,9 @@ export function BottomBar({
         )}
         <button
           type="button"
+          disabled={busy}
           onClick={onEndTurn}
-          className="flex-1 rounded-xl bg-accent px-4 py-3 text-base font-bold text-background-deep active:scale-[0.98]"
+          className="flex-1 rounded-xl bg-accent px-4 py-3 text-base font-bold text-background-deep active:scale-[0.98] disabled:opacity-40"
         >
           {de.endTurn}
         </button>

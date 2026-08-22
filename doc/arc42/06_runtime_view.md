@@ -23,13 +23,21 @@ sequenceDiagram
         E-->>S: new state (push, nudge, shield, stun)
     end
     P->>UI: "Zug beenden"
-    S->>E: endPlayerTurn
-    Note over E: robots execute intents in order:<br/>move (stop if blocked), attack tile,<br/>topple towers / damage heroes / consume shields
+    S->>E: beginRobotPhase (phase = robotTurn, queue all robots)
+    loop one robot at a time (animated playback)
+        S-->>UI: wind-up: spotlight + rev animation on the acting robot
+        S->>E: executeNextRobot
+        Note over E: move (stop if blocked), attack tile,<br/>topple towers / damage heroes / consume shields
+        E-->>S: new state + events for this robot
+        S-->>UI: glide movement (stompers march, dashers lean in),<br/>impact/dust/poof effects, board shake on topple, ticker line
+        S->>S: pacing delay (zero under test)
+    end
+    S->>E: finishRobotPhase
     E->>E: evaluate defeat (all heroes down OR chaos >= max)
     E->>E: evaluate victory (round >= roundsToSurvive)
     E->>E: else round+1, spawn due robots, reset flags, new intents
-    E-->>S: new state + events
-    S-->>UI: event ticker (German), next round or overlay
+    E-->>S: new state + spawn events
+    S-->>UI: next round or overlay
 ```
 
 ## Key runtime rules
@@ -40,4 +48,6 @@ sequenceDiagram
 - **Shields** can protect plushies and standing towers; they last until the end of the coming robot phase and absorb exactly one hit (or one topple attempt).
 - **Stunned robots** (wind-up key) skip exactly one execution.
 - **Spawns** appear at the start of their scheduled round; a blocked spawn tile delays them by one round.
+- **Playback is presentation only**: `endPlayerTurn` (begin + all steps + finish in one call) produces exactly the same final state as the animated step-wise playback — the engine result never depends on animation.
+- **Player actions are animated too**: heroes hop when moving, the push slides the robot with an impact burst on collision, the nudge makes the robot wobble, and the shield casts a sparkle burst plus a shimmering aura on its target. Input is locked while the robot phase plays back.
 - **Confused robots** (nudged by Häschen) replace their plan with a straight stumble away from the bunny for one turn — the player controls the direction through the bunny's position. If the stumble carries past the board edge, the robot falls off and is removed. Robots never leave the board voluntarily: their own plans always stop at the edge.

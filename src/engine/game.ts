@@ -1,7 +1,7 @@
 import { adjacentRobotTargets, nudgeRobot, pushRobot, shieldTargets } from "./abilities";
 import { vecEquals } from "./grid";
 import { heroAt, isTileBlocked, reachableTiles, robotAt, standingPropAt } from "./movement";
-import { computeAllIntents, executeRobotPhase } from "./robots";
+import { computeAllIntents, executeRobot } from "./robots";
 import type { Content, GameState, LevelDef, Vec } from "./types";
 
 export function createGame(content: Content, level: LevelDef): GameState {
@@ -31,6 +31,7 @@ export function createGame(content: Content, level: LevelDef): GameState {
     })),
     items: level.items.map((defId) => ({ defId, used: false })),
     pendingSpawns: [...level.spawns],
+    pendingRobotIds: [],
     events: [],
     nextUnitId: 0,
   };
@@ -145,12 +146,36 @@ export function applyItem(state: GameState, itemIndex: number, target: Vec): Gam
   return next;
 }
 
-export function endPlayerTurn(content: Content, state: GameState): GameState {
+/**
+ * Starts the robot phase: queues all robots so they can be executed one by
+ * one (`executeNextRobot`), which lets the UI play the phase back with
+ * animations. Events accumulate across the whole phase.
+ */
+export function beginRobotPhase(state: GameState): GameState {
   if (state.phase !== "playerTurn") return state;
   const next = clone(state);
+  next.phase = "robotTurn";
   next.events = [];
+  next.pendingRobotIds = next.robots.map((r) => r.id);
+  return next;
+}
 
-  executeRobotPhase(content, next);
+/** Executes the next queued robot. No-op when the queue is empty. */
+export function executeNextRobot(content: Content, state: GameState): GameState {
+  if (state.phase !== "robotTurn" || state.pendingRobotIds.length === 0) return state;
+  const next = clone(state);
+  const robotId = next.pendingRobotIds.shift()!;
+  executeRobot(content, next, robotId);
+  return next;
+}
+
+/**
+ * Ends the robot phase once the queue is drained: evaluates win/lose,
+ * otherwise advances the round (spawns, flag resets, fresh intents).
+ */
+export function finishRobotPhase(content: Content, state: GameState): GameState {
+  if (state.phase !== "robotTurn" || state.pendingRobotIds.length > 0) return state;
+  const next = clone(state);
 
   const chaos = next.props.filter((p) => p.toppled).length;
   const allHeroesDown = next.heroes.every((h) => h.hp <= 0);
@@ -163,6 +188,7 @@ export function endPlayerTurn(content: Content, state: GameState): GameState {
     return next;
   }
 
+  next.phase = "playerTurn";
   next.round += 1;
   spawnDueRobots(content, next);
   for (const hero of next.heroes) {
@@ -175,6 +201,16 @@ export function endPlayerTurn(content: Content, state: GameState): GameState {
   }
   computeAllIntents(content, next);
   return next;
+}
+
+/** Runs the whole robot phase in one step (headless / tests). */
+export function endPlayerTurn(content: Content, state: GameState): GameState {
+  let next = beginRobotPhase(state);
+  if (next === state) return state;
+  while (next.pendingRobotIds.length > 0) {
+    next = executeNextRobot(content, next);
+  }
+  return finishRobotPhase(content, next);
 }
 
 function spawnDueRobots(content: Content, state: GameState): void {

@@ -7,8 +7,6 @@ plushies; toy robots try to topple chaos targets and wake the children.
 
 Player-facing text is German and is defined in `src/i18n/de.ts`. German
 text quoted below matches those strings.
-Level encounters (boards, spawns, round counts, `maxChaos`, starting
-plushies) are not part of this file.
 
 ## Objective and turn flow
 
@@ -61,7 +59,8 @@ action waits until that animation ends.
 Animated actions include at least: plushie walk, bunny jump, Push
 (shove then forced travel), Nudge (facing turn on the spot), shield
 cast, wind-up key, cannonball, robot walk, marble slide, Stampfer /
-Rostzahn front-hex hit, Flitzer crash, Kreisel spin, Knalli blast,
+Rostzahn front-hex hit, Flitzer crash, Kipplaster dump,
+Knalli blast,
 topple, bump, shield block, plushie exhausted (removed), robot
 destroyed, robot exiting the board, and a spawn arriving.
 
@@ -172,7 +171,8 @@ stands.
    Equal-distance candidates keep the first order returned by the state
    arrays (props or heroes); there is no random choice.
 
-For `stomper`, `spinner`, `bomber`, `dasher`, and `rostzahn` movement,
+For `stomper`, `bomber`, `dasher`, `kipplaster`, and `rostzahn`
+movement,
 pathfinding evaluates the six hex directions. For each direction it
 generates a connected run of at most the robot's `move` value:
 
@@ -191,8 +191,8 @@ generates a connected run of at most the robot's `move` value:
   (the first hex step on a shortest line; ties use the same first-win
   direction order as above).
 
-`stomper`, `rostzahn`, `spinner`, and `bomber` publish that facing and
-step count.
+`stomper`, `rostzahn`, `kipplaster`, and `bomber` publish that facing
+and step count.
 
 `dasher` must charge at least one free hex. It never enters the crash
 tile: it stops on the last free hex before a living hero, robot, or
@@ -236,7 +236,7 @@ robot:
 | --- | ---: | ---: | ---: | --- |
 | `stomper` / **Stampfer** | 2 | 2 | 1 | Walks the planned steps (or fewer if blocked), then hits the single hex in front — the next hex in its facing. German: **„Stapft in einer geraden Linie Richtung nächstem Turm. Nach dem Zug trifft er das Feld genau vor sich — ganz gleich, was dort steht.“** |
 | `dasher` / **Flitzer** | 1 | 3 | 1 | Must move at least one hex. Stops on the last free hex, then hits the next hex (crash tile). If already adjacent to a pet or obstacle, it plans a different line and a different crash. No charge means no attack. German: **„Rast geradeaus und rammt das nächste Feld, aber nur nach mindestens einem Schritt. Steht schon etwas direkt davor, sucht er sich eine andere Bahn.“** |
-| `spinner` / **Kreisel** | 2 | 1 | 1 | Walks, then hits all six neighboring hexes. German: **„Dreht sich wild im Kreis und trifft nach seinem Zug ALLE sechs Nachbarfelder — haltet Abstand!“** |
+| `kipplaster` / **Kipplaster** | 2 | 2 | 1 | Walks, then hits the two hexes to the **front-left and front-right** of its facing — the two neighbors that touch both the robot and the hex in front. The hex straight ahead is not hit. Standing directly in its face is safe. German: **„Kippt nach dem Zug nach links und rechts vorn aus — nicht geradeaus. Wer genau davor steht, ist sicher.“** |
 | `bomber` / **Knalli** | 1 | 2 | 1 | Walks, then hits all six neighboring hexes and is removed. It always blasts after its walk, even if every neighbor is empty. German: **„Läuft und macht dann BUMM: Die Explosion trifft alle sechs Nachbarfelder — und Knalli selbst ist danach weg. Immer, auch wenn niemand daneben steht.“** |
 | `rostzahn` / **Rostzahn** | 4 | 1 | 2 | Stampfer shape (one hex in front) with 2 damage. Push and Nudge do not move it and do not change its plan. It still takes bumps. German: **„Der Anführer der Roboter: langsam, aber riesig stark. Zu schwer zum Schubsen oder Umlenken — nur der Aufziehschlüssel, die Kanonenkugel oder viele Rempler halten ihn auf.“** |
 
@@ -276,6 +276,31 @@ items may be used in the same round.
 The wind-up key is ready again at the start of the next player turn. The
 cannonball is gone for the rest of the level after one use.
 
+## Levels
+
+There are four levels. Each is a different area of the kids' room. Each
+new level introduces something the player has not had to deal with yet
+— a new robot, a new tile, or both. Rostzahn appears only in the last
+level.
+
+Layouts are **hardcoded** for now: starting positions, props, terrain,
+spawn tiles, who is in the roster, when extra robots arrive, how many
+rounds to hold, and `maxChaos`. There is no procedural generator.
+
+Which items a level starts with is also hardcoded. The wind-up key
+belongs in every level. The cannonball may be withheld from the first
+lesson and given later.
+
+| Id | Area | German name | Teaches |
+| --- | --- | --- | --- |
+| `level-1` | The rug | **Der Teppich** | Stampfer, Flitzer, towers and blocks. **„Die Bauklotz-Türme wackeln schon!“** |
+| `level-2` | The reading corner | **Die Bücherecke** | Kipplaster and cushions. Book stacks as chaos targets. **„Kipplaster schütten zwischen den Bücherstapeln.“** |
+| `level-3` | The marble run | **Die Murmelbahn** | Knalli and marble tracks. **„Vorsicht, hier rollt alles!“** |
+| `level-4` | The desk | **Die Schreibtisch-Festung** | Rostzahn, the music box, and a mix of earlier robots and tiles. **„Rostzahn kommt. Beschützt die Spieluhr!“** |
+
+Later levels may reuse earlier robots and tiles. Exact hexes, spawn
+timings, and numbers live in the level files, not here.
+
 ## Result screen
 
 When the level ends, the player sees a full-screen result (not a ticker
@@ -305,7 +330,7 @@ Speaker lines live in `src/i18n/de.ts`:
 | `unicorn` | Win | **„Ein bisschen Glitzer hält die Nacht ruhig.“** |
 | `stomper` | Lose | **„Stampfen, umwerfen, fertig.“** |
 | `dasher` | Lose | **„Zu langsam! Ich war schon da.“** |
-| `spinner` | Lose | **„Alles dreht sich — besonders eure Türme!“** |
+| `kipplaster` | Lose | **„Alles zur Seite — Türme auch!“** |
 | `bomber` | Lose | **„BUMM. Gute Nacht war gestern.“** |
 | `rostzahn` | Lose | **„Zu schwer zum Schubsen. Zu spät zum Schlafen.“** |
 

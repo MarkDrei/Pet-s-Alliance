@@ -28,8 +28,8 @@ export const de = {
     },
     "level-2": {
       name: "Die Bücherecke",
-      tagline: "Kreisel wirbeln zwischen den Bücherstapeln.",
-      feature: "Neu: Kreisel-Roboter und weiche Kissen, auf die kein Roboter rollen kann.",
+      tagline: "Kipplaster schütten zwischen den Bücherstapeln.",
+      feature: "Neu: Kipplaster und weiche Kissen, auf die kein Roboter rollen kann.",
     },
     "level-3": {
       name: "Die Murmelbahn",
@@ -73,7 +73,7 @@ export const de = {
   defeatQuotes: {
     stomper: "Stampfen, umwerfen, fertig.",
     dasher: "Zu langsam! Ich war schon da.",
-    spinner: "Alles dreht sich — besonders eure Türme!",
+    kipplaster: "Alles zur Seite — Türme auch!",
     bomber: "BUMM. Gute Nacht war gestern.",
     rostzahn: "Zu schwer zum Schubsen. Zu spät zum Schlafen.",
   } as Record<string, string>,
@@ -122,10 +122,10 @@ export const de = {
       description:
         "Rast geradeaus und rammt das nächste Feld, aber nur nach mindestens einem Schritt. Steht schon etwas direkt davor, sucht er sich eine andere Bahn.",
     },
-    spinner: {
-      name: "Kreisel",
+    kipplaster: {
+      name: "Kipplaster",
       description:
-        "Dreht sich wild im Kreis und trifft nach seinem Zug ALLE sechs Nachbarfelder — haltet Abstand!",
+        "Kippt nach dem Zug nach links und rechts vorn aus — nicht geradeaus. Wer genau davor steht, ist sicher.",
     },
     bomber: {
       name: "Knalli",

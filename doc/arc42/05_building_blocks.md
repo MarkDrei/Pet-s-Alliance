@@ -47,7 +47,7 @@ flowchart TB
 | `types.ts` | All engine types: content definitions (`HeroDef`, `RobotDef`, `PropDef`, `ItemDef`, `LevelDef`, `Content`) and serializable runtime state (`GameState`, `HeroState`, `RobotState`, `RobotIntent`, `GameEvent`, …) |
 | `grid.ts` | Hex coordinates, directions, bounds, adjacency, and distance |
 | `movement.ts` | Occupancy queries (`heroAt`, `robotAt`, `isTileBlocked`), terrain queries (`terrainKindAt`, `isTileBlockedForRobot` — cushions block robots but not plushies), and hero movement range (BFS, jump support) |
-| `robots.ts` | Robot AI: intent computation for the four behaviors (stomper marches, dasher charges, spinner whirls into all adjacent tiles, bomber self-destructs next to its target), marble-slide physics shared by intents and execution, and robot phase execution (move, attack, topple, damage, explode) |
+| `robots.ts` | Robot AI: intent computation for the four behaviors (stomper marches, dasher charges, spinner whirls into all six neighboring hexes, bomber self-destructs next to its target), marble-slide physics shared by intents and execution, and robot phase execution (move, attack, topple, damage, explode) |
 | `abilities.ts` | Hero abilities: push (Wegschubsen), nudge (Anschubsen), shield (Funkelschild) and their target queries |
 | `game.ts` | Turn state machine: `createGame`, `moveHero`, `applyAbility`, `applyItem`, win/lose evaluation, spawns. The robot phase is exposed step-wise for animated playback (`beginRobotPhase` → `executeNextRobot` per robot → `finishRobotPhase`); `endPlayerTurn` runs all three atomically for headless use and tests |
 | `testUtils.ts` | Minimal content/level fixtures for engine tests |

@@ -44,7 +44,8 @@ erschöpft. Die Roboter feiern!“**.
   around corners. German: **„Roboter ziehen nur in geraden Linien – wie ein
   Turm beim Schach.“**
 - Robots stop before a blocker. Their AI chooses a straight path that gets
-  closest to its target, with ties favoring the shorter path.
+  closest to its target; exact tie-breaking is defined in the NPC pathfinding
+  rules below.
 - A blocked robot spawn is delayed by one round.
 
 ## Player characters

@@ -148,6 +148,40 @@ export const de = {
 
   heavyLabel: "Zu schwer zum Schubsen",
 
+  inspect: {
+    propNames: {
+      tower: "Bauklotz-Turm",
+      books: "Bücherstapel",
+      musicbox: "Spieluhr",
+      blocks: "Bauklötze",
+    } as Record<string, string>,
+    propHints: {
+      tower: "Kann umgeworfen werden – das gibt Chaos!",
+      books: "Kann umgeworfen werden – das gibt Chaos!",
+      musicbox: "Das Herzstück des Kinderzimmers. Fällt sie um, gibt das Chaos!",
+      blocks: "Feste Bauklötze – hier kommt niemand durch. Umwerfen unmöglich.",
+    } as Record<string, string>,
+    toppledLabel: "Umgefallen",
+    terrainNames: {
+      marbles: "Murmeln",
+      cushion: "Kissen",
+    } as Record<string, string>,
+    terrainHints: {
+      marbles: "Murmel-Bahnen — wer draufrollt, rutscht weiter!",
+      cushion: "Weiche Kissen, auf die kein Roboter rollen kann.",
+    } as Record<string, string>,
+    planLabel: "Plan",
+    planWalk: (steps: number) =>
+      steps === 0
+        ? "Bleibt stehen und greift dann an."
+        : steps === 1
+          ? "Läuft 1 Feld und greift dann an."
+          : `Läuft ${steps} Felder und greift dann an.`,
+    planNoAttack: "Greift diese Runde nicht an.",
+    canStillMove: "Darf noch laufen",
+    canStillAct: "Fähigkeit noch bereit",
+  },
+
   stats: {
     move: "Bewegung",
     damage: "Schaden",

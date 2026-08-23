@@ -1,0 +1,171 @@
+@import "tailwindcss";
+
+@theme {
+  /* Night-time kids' room palette */
+  --color-night-950: #0b0a2a;
+  --color-night-900: #141245;
+  --color-night-800: #1e1b5e;
+  --color-night-700: #2b2779;
+  --color-night-600: #3d3899;
+  --color-plum-500: #6c5ce7;
+  --color-plum-400: #8b7cf0;
+  --color-honey-300: #ffd166;
+  --color-honey-400: #ffb84d;
+  --color-honey-500: #f59e0b;
+  --color-candy-400: #ff8fab;
+  --color-candy-500: #f76c8a;
+  --color-mint-400: #4ade80;
+  --color-mint-300: #86efac;
+  --color-sky-soft: #7dd3fc;
+  --color-danger-400: #fb7185;
+  --color-danger-500: #ef4444;
+
+  --font-display: var(--font-fredoka), "Comic Sans MS", system-ui, sans-serif;
+
+  --animate-bob: bob 2.6s ease-in-out infinite;
+  --animate-twinkle: twinkle 2.4s ease-in-out infinite;
+  --animate-float: float 5s ease-in-out infinite;
+  --animate-pop-in: pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-wobble: wobble 0.5s ease-in-out;
+  --animate-pulse-soft: pulse-soft 1.4s ease-in-out infinite;
+  --animate-slide-up: slide-up 0.35s ease-out both;
+  --animate-hop: hop 0.5s ease-in-out infinite;
+  --animate-blast: blast 0.6s ease-out both;
+  --animate-spin-slow: spin 6s linear infinite;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(3deg);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes wobble {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-7deg);
+  }
+  75% {
+    transform: rotate(7deg);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes blast {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+html,
+body {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: var(--font-display);
+  background: linear-gradient(180deg, var(--color-night-950) 0%, var(--color-night-800) 55%, #35216b 100%);
+  color: #fdf6ff;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Chunky kid-friendly button feel: squish on tap. */
+.btn-squish {
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    filter 120ms ease;
+}
+.btn-squish:active:not(:disabled) {
+  transform: scale(0.93);
+  filter: brightness(1.1);
+}
+
+/* Twinkling star field (deterministic positions, pure CSS). */
+.star {
+  position: absolute;
+  border-radius: 9999px;
+  background: #fff8e7;
+  animation: twinkle 2.4s ease-in-out infinite;
+}

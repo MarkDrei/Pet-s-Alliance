@@ -31,10 +31,11 @@ erschöpft. Die Roboter feiern!“**.
 
 ## Grid, occupancy, and movement
 
-- The board is laid out for a vertical screen: its left and right sides are
-  seven tiles high. From the uppermost and lowermost tile on either side,
-  diagonal runs extend four steps toward the top and bottom; the two sides are
-  eight tile steps apart.
+- The board is laid out for a vertical screen: the left and right boundary
+  columns each contain seven tiles. From the uppermost tile of each boundary,
+  the board continues diagonally toward the top for four hex steps; from the
+  lowermost tile of each boundary, it continues diagonally toward the bottom
+  for four hex steps. The left and right boundaries are eight hex steps apart.
 - Tiles are hexagonal. Movement and adjacency follow the six neighboring
   hexes; diagonal-looking connections in the portrait layout are normal hex
   edges, not diagonal movement across a square grid.

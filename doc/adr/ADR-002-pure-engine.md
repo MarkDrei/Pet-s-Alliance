@@ -17,4 +17,4 @@ All rules live in `src/engine/` as pure functions over a serializable `GameState
 - The whole rule set runs headless in unit tests (57 tests, < 1 s of test time).
 - `GameState` can be serialized to local storage or a server without adaptation.
 - Content and engine evolve independently: new heroes/robots/levels are data.
-- Cost: reducers clone state on every action — negligible at the compact hex-board scale.
+- Cost: reducers clone state on every action — negligible at 8x8 scale.

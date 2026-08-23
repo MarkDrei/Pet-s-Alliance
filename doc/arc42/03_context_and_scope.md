@@ -9,11 +9,10 @@ flowchart LR
     FutureBackend[Future backend: player DB, progression] -.->|planned| App
 ```
 
-The app is currently self-contained: a statically exported Next.js site (no Node server at runtime). There are no external systems yet. The planned backend (player accounts, meta-progression persistence) is a documented extension point, not an implementation.
+The app is currently self-contained: a Next.js web app running entirely in the browser. There are no external systems yet. The planned backend (player accounts, meta-progression persistence) is a documented extension point, not an implementation.
 
 ## Technical context
 
 - Browser (mobile portrait first) renders the React UI.
-- No network calls at runtime beyond loading the app itself (HTML, JS, CSS, sprites).
-- Deployed as static files under `/pets` ([ADR-005](../adr/ADR-005-static-export.md)).
+- No network calls at runtime beyond loading the app itself.
 - No persistence yet — a run is lost on reload (meta-progression will require persistence later).

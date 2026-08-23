@@ -8,12 +8,10 @@ The game is played in **German**; code and documentation are in English.
 
 ## Core game rules (current slice)
 
-- Hexagonal board optimized for portrait play: seven tiles high on the left and
-  right sides, four diagonal steps from each side endpoint toward the top and
-  bottom, and eight steps from side to side; no fog of war — everything is visible.
+- 8x8 isometric board, no fog of war — everything is visible.
 - Each round: robots reveal their full intents (movement path + attack tile), then the player moves each hero (once) and uses each hero's ability (once), then the robots execute.
 - Heroes do not attack directly. They push, redirect, shield, and block. Robots break when they bump into walls and obstacles.
-- Robots move along connected hex edges, so blocking a lane is a core tactic.
+- Robots move like a rook in chess: straight orthogonal lines only, never around corners — so blocking a lane is a core tactic.
 - Win: survive a fixed number of rounds. Lose: all heroes are down, or the chaos meter (toppled targets) reaches its limit.
 - Items (1-2 per level) are single-use tactical tools.
 

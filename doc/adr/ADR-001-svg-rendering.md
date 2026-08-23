@@ -6,7 +6,7 @@ Accepted (2026-08-22)
 
 ## Context
 
-The portrait hexagonal board needs placeholder graphics now and sprite art later. Candidates: SVG/React components, or a canvas engine (PixiJS).
+The isometric 8x8 board needs placeholder graphics now and sprite art later. Candidates: SVG/React components, or a canvas engine (PixiJS).
 
 ## Decision
 

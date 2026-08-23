@@ -11,7 +11,7 @@ German game terms vs. English code terms.
 | Roboter | robot (`RobotState`, `RobotDef`) | Enemy unit |
 | Stampfer | `stomper` | Robot that walks toward targets and smashes them |
 | Flitzer | `dasher` | Robot that charges in a straight line |
-| Kreisel | `spinner` | Slow robot that whirls into all four adjacent tiles after moving |
+| Kreisel | `spinner` | Slow robot that whirls into all six neighboring hexes after moving |
 | Knalli | `bomber` | Robot that marches to a chaos target and self-destructs, blasting all adjacent tiles |
 | Rostzahn | `rostzahn` (behavior `stomper`, `heavy`) | Boss: slow, 4 HP, 2 damage, too heavy to push or nudge |
 | Wegschubsen | `push` ability | Push an adjacent robot one tile away |

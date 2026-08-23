@@ -51,4 +51,4 @@ looks. Characters after the bunny come from a general-purpose model instead, see
 - **Slice each frame into its own PNG**: simpler markup, but more files, a
   slicing script to maintain, and animation would need all frames re-referenced.
 - **CSS sprite background positioning**: does not compose with the single-SVG
-  board, where sprites must scale and sort with the isometric scene.
+  board, where sprites must scale and sort with the hex scene.

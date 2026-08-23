@@ -1,7 +1,8 @@
 # Pet's Alliance: Game Mechanics
 
-This document describes the implemented rules and content. The game is a
-turn-based defense game on an 8×8 orthogonal grid. The player controls
+This document describes the game rules and content. The game is a
+turn-based defense game on a hexagonal board designed for a vertical mobile
+screen. The player controls
 plushies; toy robots try to topple chaos targets and wake the children.
 
 Player-facing text is German and is defined in `src/i18n/de.ts`. German text
@@ -30,22 +31,25 @@ erschöpft. Die Roboter feiern!“**.
 
 ## Grid, occupancy, and movement
 
-- Coordinates are zero-based `(x, y)` on an 8×8 board. North decreases `y`,
-  south increases `y`, east increases `x`, and west decreases `x`.
-- Adjacency and ability range use Manhattan distance. Area attacks affect the
-  four orthogonally adjacent tiles, not diagonals.
+- The board is laid out for a vertical screen: its left and right sides are
+  seven tiles high. From the uppermost and lowermost tile on either side,
+  diagonal runs extend four steps toward the top and bottom; the two sides are
+  eight tile steps apart.
+- Tiles are hexagonal. Movement and adjacency follow the six neighboring
+  hexes; diagonal-looking connections in the portrait layout are normal hex
+  edges, not diagonal movement across a square grid.
+- Ability range counts hex steps. Area attacks affect the neighboring hexes
+  defined by the ability, not arbitrary screen diagonals.
 - A tile is blocked for normal movement when occupied by a living hero, a
   robot, or a standing prop. A toppled prop is flat rubble and can be crossed.
 - Heroes use breadth-first movement up to their movement value. A non-jumping
   hero cannot pass through blocked tiles. A jumping hero may pass over blocked
   tiles, but may only land on a free tile.
-- Heroes cannot move diagonally and cannot move after they have already moved.
-- Robot movement is orthogonal and straight-line only (rook-like), never
-  around corners. German: **„Roboter ziehen nur in geraden Linien – wie ein
-  Turm beim Schach.“**
-- Robots stop before a blocker. Their AI chooses a straight path that gets
-  closest to its target; exact tie-breaking is defined in the NPC pathfinding
-  rules below.
+- Heroes cannot move across non-adjacent hexes and cannot move after they have
+  already moved.
+- Robots move along connected hex edges and stop before a blocker. Their AI
+  chooses a path that gets closest to its target; exact tie-breaking is
+  defined in the NPC pathfinding rules below.
 - A blocked robot spawn is delayed by one round.
 
 ## Player characters
@@ -85,22 +89,22 @@ For target selection:
 1. Collect all standing props whose definition is toppleable.
 2. If that list is non-empty, ignore heroes and use only those props.
 3. Otherwise collect all living heroes.
-4. Select the candidate with the smallest Manhattan distance from the robot.
+4. Select the candidate with the smallest hex distance from the robot.
    Equal-distance candidates keep the first order returned by the state arrays
    (props or heroes); there is no random choice or secondary tie-breaker.
 
-For `stomper`, `spinner`, and `bomber` movement, `pathToward` evaluates all
-four directions in this fixed order: north, east, south, west. For each
-direction it generates a straight line of at most the robot's `move` value:
+For `stomper`, `spinner`, and `bomber` movement, pathfinding evaluates the six
+directions of the hex grid. For each direction it generates a connected run of
+at most the robot's `move` value:
 
 - Stop before the board edge or the first tile blocked for robots.
 - A cushion is blocked for robots. A hero, robot, or standing prop is also
   blocked. Toppled props are not blocked.
 - Consider every reachable stopping point on that line, not just the endpoint.
-- Compare each point by Manhattan distance to the selected target.
+- Compare each point by hex distance to the selected target.
 - Keep a point only when it is strictly closer than the current best point.
   Consequently, the first direction and stopping point winning a distance tie
-  remain selected. A robot does not route around corners and does not
+  remain selected. A robot does not route around blockers and does not
   deliberately move farther away to obtain a later approach.
 - If no candidate is strictly closer than the current position, the path is
   empty.
@@ -120,8 +124,8 @@ target must still be present).
 | --- | ---: | ---: | ---: | --- |
 | `stomper` / **Stampfer** | 2 | 2 | 1 | Marches in a straight line toward the nearest target and topples or hits it when adjacent. German: **„Stapft jede Runde in einer geraden Linie auf den nächsten Turm zu und wirft ihn um, sobald er daneben steht.“** |
 | `dasher` / **Flitzer** | 1 | 3 | 1 | Charges in its facing direction and attacks the first hero or standing prop in its lane. German: **„Rast geradeaus in seine Blickrichtung und rammt das Erste, was ihm im Weg steht.“** |
-| `spinner` / **Kreisel** | 2 | 1 | 1 | Moves toward a target, then attacks all four adjacent tiles. German: **„Dreht sich wild im Kreis und trifft nach seinem Zug ALLE vier Felder um sich herum — haltet Abstand!“** |
-| `bomber` / **Knalli** | 1 | 2 | 1 | Moves toward the nearest target; when adjacent, blasts all four adjacent tiles and destroys itself. German: **„Flitzt zum nächsten Turm und macht dort BUMM: Die Explosion trifft alles daneben — und Knalli selbst ist danach weg.“** |
+| `spinner` / **Kreisel** | 2 | 1 | 1 | Moves toward a target, then attacks all six neighboring hexes. German: **„Dreht sich wild im Kreis und trifft nach seinem Zug ALLE sechs Nachbarfelder — haltet Abstand!“** |
+| `bomber` / **Knalli** | 1 | 2 | 1 | Moves toward the nearest target; when adjacent, blasts all six neighboring hexes and destroys itself. German: **„Flitzt zum nächsten Turm und macht dort BUMM: Die Explosion trifft alles daneben — und Knalli selbst ist danach weg.“** |
 | `rostzahn` / **Rostzahn** | 4 | 1 | 2 | A heavy boss with stomper behavior. It cannot be pushed or nudged. German: **„Der Anführer der Roboter: langsam, aber riesig stark. Zu schwer zum Schubsen — nur der Aufziehschlüssel oder viele Rempler halten ihn auf.“** |
 
 When a robot is blocked while trying to move directionally, it turns clockwise

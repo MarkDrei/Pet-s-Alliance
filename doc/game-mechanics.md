@@ -159,7 +159,8 @@ auf – er setzt eine Runde aus.“** Level 1 and 2 provide one key; levels 3 an
   At 0 HP the hero is **„erschöpft“** and no longer blocks tiles or counts as a
   living target.
 - A shield absorbs exactly one hero hit or one topple attempt, then disappears.
-  Shields reset at the start of the next player round.
+  Any remaining shields are cleared when the robot phase ends, before the next
+  player round begins.
 - A push into a blocked tile or off-board deals one damage to a non-heavy robot.
   At 0 HP it is removed.
 - A robot that falls off the board is removed.

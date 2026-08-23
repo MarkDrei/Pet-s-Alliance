@@ -1,50 +1,32 @@
-# Pet's Alliance
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A turn-based mobile strategy game for kids — *Into the Breach* meets *Jagged Alliance*, in a kids' room at night.
+Pet's Alliance game rules are in [doc/game-mechanics.md](doc/game-mechanics.md). Generated hero sprites are in `public/sprites/heroes/`.
 
-Toy robots come alive after dark and try to topple things to wake the children. Three plushie heroes — **Teddybär**, **Häschen**, and **Einhorn** — must survive the night by pushing, redirecting, and outsmarting the robots on an 8x8 isometric board. All robot moves are announced before you act; win by surviving the required number of rounds.
+## Getting Started
 
-The game UI is in **German**; code and documentation are in English.
-
-## Getting started
+First, run the development server:
 
 ```bash
-npm install
-npm run dev       # http://localhost:3000
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Development server |
-| `npm run test` | Run the Vitest suite (engine + component tests) |
-| `npm run test:watch` | Tests in watch mode |
-| `npm run lint` | ESLint |
-| `npm run build` | Static export to `out/` (hosted under `/pets/`) |
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Tech stack
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-Next.js (App Router) · React · TypeScript · Tailwind CSS · Zustand · Vitest + React Testing Library
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Project structure
+## Learn More
 
-```
-src/
-  app/          Routes: / (title), /game (game screen); future screens get routes here
-  engine/       Pure game rules (no React) — fully unit tested
-  content/      Declarative game data: heroes, robots, props, items, levels
-  state/        Zustand store bridging engine and UI
-  components/
-    board/      Isometric SVG board + projection helpers
-    sprites/    Sprite registry — ALL visuals resolve here (placeholder SVGs today)
-    hud/        Top/bottom bars, event ticker, game-over overlay
-  i18n/         German player-facing strings
-doc/            Arc42 architecture documentation (keep up to date! see AGENTS.md)
-```
+To learn more about Next.js, take a look at the following resources:
 
-## Static hosting
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-`npm run build` writes a static site to `out/`. Copy **everything inside `out/`** into a `pets` folder on the webserver (so the game is at `https://your-host/pets/`). Details: [doc/arc42/07_deployment_view.md](doc/arc42/07_deployment_view.md).
-
-## Architecture documentation
-
-Arc42-style documentation lives in [doc/](doc/README.md). **It must be kept in sync with the code** — the rules for that (and for the engine/UI separation, sprite registry, and language conventions) are in [AGENTS.md](AGENTS.md).
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!

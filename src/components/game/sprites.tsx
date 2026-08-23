@@ -152,7 +152,7 @@ export function PropSprite({ defId, toppled }: { defId: PropDefId; toppled: bool
 export function TerrainSprite({ kind }: { kind: TerrainKind }) {
   return (
     <image
-      href={`/sprites/terrain/${kind}.png`}
+      href={publicUrl(`/sprites/terrain/${kind}.png`)}
       x={-24}
       y={-24}
       width={48}

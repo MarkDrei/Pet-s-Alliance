@@ -6,7 +6,8 @@ import { previewIntent } from "@/engine/planning";
 import type { AbilityTarget } from "@/engine/game";
 import type { FloorKind, GameEvent, GameState } from "@/engine/types";
 import { de } from "@/i18n/de";
-import { HEX, tileCenter, tilePoints, VIEW_BOX } from "./layout";
+import { publicUrl } from "@/assetUrl";
+import { HEX, tileCenter, tilePoints, VIEW_BOX, VIEW_RECT } from "./layout";
 import {
   BlastStar,
   HeroSprite,
@@ -24,6 +25,8 @@ const FLOOR_TEXTURES: Record<FloorKind, string> = {
   track: "/sprites/ui/floor-track.png",
   desk: "/sprites/ui/floor-desk.png",
 };
+
+const FLOOR_CLIP_ID = "board-floor-clip";
 
 /** Facing angle in degrees for each hex direction (flat-top layout). */
 const DIR_ANGLE: Record<Dir, number> = { 0: -90, 1: -30, 2: 30, 3: 90, 4: 150, 5: 210 };
@@ -74,7 +77,6 @@ export function HexBoard({
   itemTargetIds,
   onTileTap,
 }: HexBoardProps) {
-  const floorPatternId = `floor-${view.floor}`;
   const executing = view.phase === "execution";
 
   // Robot plans: red path + attack tiles.
@@ -131,36 +133,37 @@ export function HexBoard({
       aria-label={de.levels[view.levelId]?.name ?? view.levelId}
     >
       <defs>
-        <pattern id={floorPatternId} patternUnits="userSpaceOnUse" width={128} height={128}>
-          <image
-            href={FLOOR_TEXTURES[view.floor]}
-            width={128}
-            height={128}
-            preserveAspectRatio="xMidYMid slice"
-          />
-        </pattern>
+        <clipPath id={FLOOR_CLIP_ID}>
+          {BOARD_TILES.map((tile) => (
+            <polygon key={hexKey(tile)} points={tilePoints(tile, 0.97)} />
+          ))}
+        </clipPath>
       </defs>
 
-      {/* Floor */}
+      {/* Floor: one texture across the whole board, showing only through the tiles. */}
+      <g clipPath={`url(#${FLOOR_CLIP_ID})`} pointerEvents="none">
+        <image
+          href={publicUrl(FLOOR_TEXTURES[view.floor])}
+          x={VIEW_RECT.x}
+          y={VIEW_RECT.y}
+          width={VIEW_RECT.width}
+          height={VIEW_RECT.height}
+          preserveAspectRatio="xMidYMid slice"
+        />
+      </g>
+
       <g>
         {BOARD_TILES.map((tile) => {
           const shade = ((tile.q - tile.r) % 2 + 2) % 2;
           return (
-            <g key={hexKey(tile)} onClick={() => onTileTap(tile)}>
-              <polygon
-                points={tilePoints(tile, 0.97)}
-                fill={`url(#${floorPatternId})`}
-                stroke="rgba(20,10,40,0.5)"
-                strokeWidth={1.6}
-              />
-              {shade === 1 && (
-                <polygon
-                  points={tilePoints(tile, 0.94)}
-                  fill="rgba(20,10,40,0.08)"
-                  pointerEvents="none"
-                />
-              )}
-            </g>
+            <polygon
+              key={hexKey(tile)}
+              points={tilePoints(tile, 0.97)}
+              fill={shade === 1 ? "rgba(20,10,40,0.13)" : "rgba(255,255,255,0.04)"}
+              stroke="rgba(20,10,40,0.5)"
+              strokeWidth={1.6}
+              onClick={() => onTileTap(tile)}
+            />
           );
         })}
       </g>

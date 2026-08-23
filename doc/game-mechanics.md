@@ -52,7 +52,7 @@ erschöpft. Die Roboter feiern!“**.
 
 | Code / German name | HP | Move | Ability | Rules and German explanation |
 | --- | ---: | ---: | --- | --- |
-| `teddy` / **Teddybär** | 5 | 3 | Push, range 1 | **„Robuster Beschützer – hält viel aus und stellt sich den Robotern in den Weg.“** **„Wegschubsen“** pushes an adjacent robot one tile away. If the destination is blocked or off-board, the robot bumps and takes 1 damage instead. |
+| `teddy` / **Teddybär** | 5 | 3 | Push, range 1 | **„Robuster Beschützer – hält viel aus und stellt sich den Robotern in den Weg.“** **„Wegschubsen“** pushes an adjacent robot one tile away. The robot then continues its original movement plan in the same direction for the remaining distance, as far as possible. If it runs into an obstacle or reaches the board edge, it may be tipped over and its movement stops. |
 | `bunny` / **Häschen** | 3 | 5 | Nudge, range 1 | **„Flinker Späher – springt beim Laufen über Hindernisse und Roboter hinweg.“** **„Anschubsen“** makes an adjacent robot stumble away from the bunny; the bunny's position determines the direction. |
 | `unicorn` / **Einhorn** | 3 | 4 | Shield, range 3 | **„Magische Unterstützung für das Team.“** **„Funkelschild“** protects a living plushie or standing toppleable prop from its next hit or topple attempt. The caster may target itself. |
 
@@ -76,7 +76,9 @@ The engine computes one intent for every robot before the robot phase begins.
 That intent contains a movement path and an attack target. Robots are then
 executed in their current array order, one at a time. The path is not
 recomputed between those executions; however, execution rechecks every
-destination tile because earlier robots may have changed occupancy.
+destination tile because earlier robots may have changed occupancy. A Teddy push
+does not create a new route: the pushed robot continues its original plan in the
+same direction for the remaining distance, stopping when it encounters an obstacle.
 
 For target selection:
 
@@ -162,8 +164,11 @@ auf – er setzt eine Runde aus.“** Level 1 and 2 provide one key; levels 3 an
 - A shield absorbs exactly one hero hit or one topple attempt, then disappears.
   Any remaining shields are cleared when the robot phase ends, before the next
   player round begins.
-- A push into a blocked tile or off-board deals one damage to a non-heavy robot.
-  At 0 HP it is removed.
+- A push moves a non-heavy robot one tile away from Teddy. The robot then follows
+  its original movement direction and remaining distance as far as possible. If it
+  runs into an obstacle or the board edge, it may be tipped over and stops moving.
+  A push into a blocked tile or off-board deals one damage to the robot; at 0 HP
+  it is removed.
 - A robot that falls off the board is removed.
 - A bomber is removed after its explosion. A spinner attacks after moving; its
   attack can hit multiple occupants, one per affected tile.

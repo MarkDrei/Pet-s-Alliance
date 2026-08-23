@@ -35,6 +35,12 @@ fur.
 Because the source is much larger than its display size, these sprites render
 `smooth` (see ADR-004).
 
+Keying is a convenience, not the contract. When a plate cannot be keyed, the
+backdrop is removed by hand in an image editor and the same script is run with
+`--use-alpha`, which skips keying and only crops, squares and downscales, so
+every sprite reaches `public/sprites/` through one path with one anchor
+convention. The unicorn took that route.
+
 ## Consequences
 
 - Detail per euro improves a lot: `$0.04` per 1024px candidate against
@@ -46,7 +52,13 @@ Because the source is much larger than its display size, these sprites render
 - Cutout quality is our problem, not the model's. Backdrop regions that do not
   touch the image border are not reached by the flood fill and stay in the image,
   so every asset is reviewed on a checkerboard and on tile geometry before it is
-  committed.
+  committed. A useful measure: for a plush character, fully opaque pixels should
+  be around 60% of the bounding box. Far below that means the character itself is
+  being keyed away.
+- The prompt must ask for a **vivid** key colour. Asked for "chroma green", flux
+  returns pale mint, and a pale backdrop cannot be keyed off a white character:
+  the backdrop tints the fur until the two share colours. Pale characters are the
+  likeliest candidates for manual removal.
 - Animation frames are still out of reach: the model has no notion of a frame
   grid. That stays the domain of `rd-animation` or of hand work.
 

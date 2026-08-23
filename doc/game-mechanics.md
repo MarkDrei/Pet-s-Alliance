@@ -69,6 +69,50 @@ round. Heavy robots cannot be pushed or nudged. The German ability hints are:
 Robots select standing toppleable props as targets before living heroes. If no
 toppleable props remain, they target heroes.
 
+### NPC decision and pathfinding rules
+
+The engine computes one intent for every robot before the robot phase begins.
+That intent contains a movement path and an attack target. Robots are then
+executed in their current array order, one at a time. The path is not
+recomputed between those executions; however, execution rechecks every
+destination tile because earlier robots may have changed occupancy.
+
+For target selection:
+
+1. Collect all standing props whose definition is toppleable.
+2. If that list is non-empty, ignore heroes and use only those props.
+3. Otherwise collect all living heroes.
+4. Select the candidate with the smallest Manhattan distance from the robot.
+   Equal-distance candidates keep the first order returned by the state arrays
+   (props or heroes); there is no random choice or secondary tie-breaker.
+
+For `stomper`, `spinner`, and `bomber` movement, `pathToward` evaluates all
+four directions in this fixed order: north, east, south, west. For each
+direction it generates a straight line of at most the robot's `move` value:
+
+- Stop before the board edge or the first tile blocked for robots.
+- A cushion is blocked for robots. A hero, robot, or standing prop is also
+  blocked. Toppled props are not blocked.
+- Consider every reachable stopping point on that line, not just the endpoint.
+- Compare each point by Manhattan distance to the selected target.
+- Keep a point only when it is strictly closer than the current best point.
+  Consequently, the first direction and stopping point winning a distance tie
+  remain selected. A robot does not route around corners and does not
+  deliberately move farther away to obtain a later approach.
+- If no candidate is strictly closer than the current position, the path is
+  empty.
+
+After a path is chosen, marble sliding may append additional tiles in the
+path. Sliding follows the direction of the last movement step and continues
+while the robot is on marbles. It stops at a non-marble tile or blocker, or
+marks the robot as exiting when the next step is outside the board.
+
+On execution, each planned tile is checked again. If it became blocked, the
+robot stops at its current position and the remaining planned path is
+discarded. An attack or explosion is performed only when the intent completed
+successfully (except that a normal attack must still be adjacent and its
+target must still be present).
+
 | Code / German name | HP | Move | Damage | Behavior |
 | --- | ---: | ---: | ---: | --- |
 | `stomper` / **Stampfer** | 2 | 2 | 1 | Marches in a straight line toward the nearest target and topples or hits it when adjacent. German: **„Stapft jede Runde in einer geraden Linie auf den nächsten Turm zu und wirft ihn um, sobald er daneben steht.“** |
@@ -138,71 +182,3 @@ The event ticker translates these `GameEvent` types:
 | `robotStunnedSkip` | A wind-up-key target skipped its action. | **„{Roboter} war aufgezogen und hat ausgesetzt.“** |
 | `robotSpawned` | A scheduled robot entered the board. | **„Ein neuer Roboter ist aufgetaucht!“** |
 | `robotExited` | A robot fell off the board. | **„{Roboter} ist vom Spielfeld gepurzelt!“** |
-
-## Level configurations
-
-All levels use an 8×8 board. Positions below are `(x, y)` coordinates.
-`roundsToSurvive` is the required completed round count and `maxChaos` is the
-defeat threshold.
-
-### Level 1 — `level-1`, **„Der Teppich“**
-
-German tagline: **„Die Bauklotz-Türme wackeln schon!“** Feature:
-**„Lerne Stampfer und Flitzer kennen.“**
-
-- Survive 5 rounds; defeat at 3 toppled props.
-- Heroes: Teddy `(2,6)`, Bunny `(4,6)`, Unicorn `(3,7)`.
-- Starting robots: Stampfer `(1,0)`, Flitzer `(6,0)`.
-- Spawns: round 2 Stampfer `(0,0)`; round 3 Flitzer `(4,0)`; round 4
-  Stampfer `(7,0)`.
-- Props: towers `(2,3)`, `(5,3)`, `(4,5)`, `(1,5)`; blocks `(0,4)`,
-  `(4,2)`, `(6,5)`.
-- Terrain: none. Items: one wind-up key.
-
-### Level 2 — `level-2`, **„Die Bücherecke“**
-
-German tagline: **„Kreisel wirbeln zwischen den Bücherstapeln.“** Feature:
-**„Neu: Kreisel-Roboter und weiche Kissen, auf die kein Roboter rollen kann.“**
-
-- Survive 6 rounds; defeat at 3 toppled props.
-- Floor: light/dark wood tiles.
-- Heroes: Teddy `(2,6)`, Bunny `(5,6)`, Unicorn `(3,7)`.
-- Starting robots: Spinner `(4,0)`, Stampfer `(1,0)`.
-- Spawns: round 2 Flitzer `(6,0)`; round 3 Spinner `(2,0)`; round 4
-  Stampfer `(7,0)`; round 5 Flitzer `(0,0)`.
-- Props: books `(1,3)`, `(6,3)`, `(3,4)`, `(4,2)`; blocks `(0,2)`, `(7,2)`.
-- Terrain: cushions `(2,5)`, `(3,5)`, `(5,5)`, `(6,4)`.
-- Items: one wind-up key.
-
-### Level 3 — `level-3`, **„Die Murmelbahn“**
-
-German tagline: **„Vorsicht, hier rollt alles!“** Feature:
-**„Neu: Knalli-Roboter und Murmel-Bahnen — wer draufrollt, rutscht weiter!“**
-
-- Survive 6 rounds; defeat at 3 toppled props.
-- Floor: light/dark track tiles.
-- Heroes: Teddy `(1,6)`, Bunny `(6,6)`, Unicorn `(3,7)`.
-- Starting robots: Bomber `(3,0)`, Stampfer `(6,0)`.
-- Spawns: round 2 Flitzer `(1,0)`; round 3 Bomber `(5,0)`; round 4 Stampfer
-  `(2,0)`; round 5 Bomber `(7,0)`.
-- Props: towers `(0,5)`, `(7,5)`, `(3,6)`, `(4,4)`; blocks `(1,1)`, `(6,1)`.
-- Terrain: marbles `(2,2)`, `(2,3)`, `(2,4)`, `(2,5)`, `(5,2)`, `(5,3)`,
-  `(5,4)`, `(5,5)`, `(3,3)`, `(4,3)`.
-- Items: two wind-up keys.
-
-### Level 4 — `level-4`, **„Die Schreibtisch-Festung“**
-
-German tagline: **„Rostzahn kommt. Beschützt die Spieluhr!“** Feature:
-**„Finale: Boss Rostzahn, alle Roboter, Murmeln und Kissen zugleich.“**
-
-- Survive 7 rounds; defeat at 4 toppled props.
-- Floor: light/dark desk tiles.
-- Heroes: Teddy `(2,6)`, Bunny `(5,6)`, Unicorn `(3,7)`.
-- Starting robots: Rostzahn `(3,0)`, Flitzer `(6,0)`.
-- Spawns: round 2 Spinner `(1,0)`; round 3 Bomber `(5,0)`; round 4 Stampfer
-  `(7,0)`; round 5 Spinner `(4,0)`; round 6 Bomber `(0,0)`.
-- Props: music box `(3,5)`; towers `(1,4)`, `(6,4)`, `(4,3)`; books
-  `(5,2)`; blocks `(0,2)`, `(7,2)`.
-- Terrain: marble gutters at `(0,3)`–`(0,6)` and `(7,3)`–`(7,6)`;
-  cushions `(2,4)` and `(5,5)`.
-- Items: two wind-up keys.

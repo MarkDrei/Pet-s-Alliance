@@ -4,6 +4,7 @@
  * box and the terrain are drawn inline until their art lands.
  * See doc/assets-needed.md for the replacement list.
  */
+import type { CSSProperties } from "react";
 import { publicUrl } from "@/assetUrl";
 import { isToppleable } from "@/engine/defs";
 import type { HeroDefId, PropDefId, RobotDefId, TerrainKind } from "@/engine/types";
@@ -171,6 +172,56 @@ export function SparkleBurst() {
       ))}
       {[22, 67, 112, 157].map((a) => (
         <line key={a} x1={0} y1={-8} x2={0} y2={-13} transform={`rotate(${a})`} opacity={0.7} />
+      ))}
+    </g>
+  );
+}
+
+/** 5-pointed comic star, drawn around the origin. */
+function starPoints(size: number): string {
+  const pts: string[] = [];
+  for (let i = 0; i < 10; i++) {
+    const r = i % 2 === 0 ? size : size * 0.45;
+    const a = (Math.PI / 5) * i - Math.PI / 2;
+    pts.push(`${(Math.cos(a) * r).toFixed(1)},${(Math.sin(a) * r).toFixed(1)}`);
+  }
+  return pts.join(" ");
+}
+
+/** Ray layout for the impact burst: direction, flight distance, size, delay. */
+const IMPACT_RAYS = [
+  { angle: -80, dist: 34, size: 9, delay: 0 },
+  { angle: -20, dist: 28, size: 7, delay: 70 },
+  { angle: 45, dist: 32, size: 8, delay: 30 },
+  { angle: 105, dist: 26, size: 6.5, delay: 100 },
+  { angle: 165, dist: 30, size: 8.5, delay: 50 },
+  { angle: 225, dist: 27, size: 7, delay: 90 },
+];
+
+/**
+ * Comic-style "seeing stars" burst: little yellow stars pop out of the hit
+ * tile, spin outward and fade — like a knocked-out cartoon character.
+ * The outer group per star only sets the flight direction; the animated
+ * inner group must not carry an inline transform (animations override it).
+ */
+export function ImpactStars() {
+  return (
+    <g>
+      {IMPACT_RAYS.map(({ angle, dist, size, delay }, i) => (
+        <g key={i} transform={`rotate(${angle})`}>
+          <g
+            className="animate-star-fly"
+            style={{ animationDelay: `${delay}ms`, "--star-dist": `${dist}px` } as CSSProperties}
+          >
+            <polygon
+              points={starPoints(size)}
+              fill="#fde047"
+              stroke="#ea580c"
+              strokeWidth={1.6}
+              strokeLinejoin="round"
+            />
+          </g>
+        </g>
       ))}
     </g>
   );

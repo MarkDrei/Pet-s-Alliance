@@ -32,6 +32,8 @@
   --animate-hop: hop 0.5s ease-in-out infinite;
   --animate-blast: blast 0.6s ease-out both;
   --animate-spin-slow: spin 6s linear infinite;
+  --animate-tile-flash: tile-flash 0.5s ease-out both;
+  --animate-star-fly: star-fly 0.5s ease-out both;
 }
 
 @keyframes bob {
@@ -133,6 +135,39 @@
   100% {
     opacity: 0;
     transform: scale(1.7);
+  }
+}
+
+/* Opacity-only flash for shapes drawn in absolute board coordinates
+   (scaling those would pivot around the SVG origin, not the tile). */
+@keyframes tile-flash {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Comic impact star: pops out of the tile, flies outward, spins and fades.
+   Flight distance comes from --star-dist so each star travels differently. */
+@keyframes star-fly {
+  0% {
+    opacity: 0;
+    transform: translateX(6px) rotate(0deg) scale(0.2);
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(var(--star-dist, 30px)) rotate(220deg) scale(1);
   }
 }
 

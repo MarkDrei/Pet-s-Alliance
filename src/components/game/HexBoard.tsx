@@ -10,6 +10,7 @@ import { HEX, tileCenter, tilePoints, VIEW_BOX } from "./layout";
 import {
   BlastStar,
   HeroSprite,
+  ImpactStars,
   PoofCloud,
   PropSprite,
   RobotSprite,
@@ -345,15 +346,21 @@ function EffectLayer({ view, event }: { view: GameState; event: GameEvent | null
     case "robotAttacked":
       return (
         <g pointerEvents="none">
-          {event.tiles.map((t, i) => (
-            <polygon
-              key={i}
-              points={tilePoints(t, 0.85)}
-              fill="#fbbf24"
-              opacity={0.55}
-              className="animate-blast"
-            />
-          ))}
+          {event.tiles.map((t, i) => {
+            const { x, y } = tileCenter(t);
+            return (
+              <g key={i}>
+                <polygon
+                  points={tilePoints(t, 0.85)}
+                  fill="#fbbf24"
+                  className="animate-tile-flash"
+                />
+                <g transform={`translate(${x} ${y})`}>
+                  <ImpactStars />
+                </g>
+              </g>
+            );
+          })}
         </g>
       );
     case "robotExploded":

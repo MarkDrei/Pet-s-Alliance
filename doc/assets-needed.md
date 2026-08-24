@@ -16,7 +16,7 @@ bottom center so the sprite sits on the tile.
 | File | Status |
 | --- | --- |
 | `public/sprites/heroes/teddy.png` | in game |
-| `public/sprites/heroes/bunny.png` | in game |
+| `public/sprites/heroes/bunny.png` | in game (256px plush, replaced the earlier pixel-art version) |
 | `public/sprites/heroes/unicorn.png` | in game |
 | `public/sprites/robots/*.png` | in game (all five) |
 | `public/sprites/props/*.png` | in game (tower, books, blocks, both toppled variants) |

@@ -1,50 +1,58 @@
 # Pet's Alliance
 
-A turn-based mobile strategy game for kids — *Into the Breach* meets *Jagged Alliance*, in a kids' room at night.
+A turn-based defense game for kids in a night-time children's room:
+plushies hold the line against toy robots that want to topple things and
+wake the children. Browser-based, mobile-first, vertical screen. All
+player-facing text is German.
 
-Toy robots come alive after dark and try to topple things to wake the children. Three plushie heroes — **Teddybär**, **Häschen**, and **Einhorn** — must survive the night by pushing, redirecting, and outsmarting the robots on an 8x8 isometric board. All robot moves are announced before you act; win by surviving the required number of rounds.
+- **Game rules:** [doc/game-mechanics.md](doc/game-mechanics.md)
+- **Missing art / placeholder list:** [doc/assets-needed.md](doc/assets-needed.md)
+- **German strings:** [src/i18n/de.ts](src/i18n/de.ts)
+- Pipeline hero art lives in `public/sprites/heroes/`.
 
-The game UI is in **German**; code and documentation are in English.
+## Stack
 
-## Getting started
+- Next.js (App Router) + React + Tailwind CSS 4 — frontend only, all game
+  logic runs in the browser. A backend may come much later.
+- Pure TypeScript game engine in `src/engine/` (hex math, robot planning,
+  abilities, items, execution, levels) — fully unit-tested with Vitest.
+- UI in `src/components/game/`: SVG hex board, animation runner that
+  plays engine events one at a time, HUD, inspect panel, event ticker,
+  result screen.
+
+## Commands
 
 ```bash
-npm install
-npm run dev       # http://localhost:3000
+npm run dev        # http://localhost:3000/pets2
+npm test           # run the test suite once
+npm run test:watch # watch mode
+npm run coverage   # engine + i18n coverage report
+npm run lint       # eslint
+npm run build      # static site into out/
 ```
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Development server |
-| `npm run test` | Run the Vitest suite (engine + component tests) |
-| `npm run test:watch` | Tests in watch mode |
-| `npm run lint` | ESLint |
-| `npm run build` | Static export to `out/` (hosted under `/pets/`) |
+## Static deploy (`/pets2`)
 
-## Tech stack
+The app is frontend-only. `next.config.ts` uses `output: "export"` and
+`basePath: "/pets2"`, so `npm run build` writes a static site into `out/`.
 
-Next.js (App Router) · React · TypeScript · Tailwind CSS · Zustand · Vitest + React Testing Library
+1. `npm run build`
+2. Upload **the contents of `out/`** (not the `out` folder itself) into the
+   `/pets2` directory on your web server.
+3. Open `https://your-domain/pets2/`
 
-## Project structure
+Each route is a folder with `index.html` (`trailingSlash: true`), so Apache,
+nginx, and similar hosts can serve `/pets2/play/level-1/` without extra
+rewrites. To host under a different folder, change `basePath` in
+`next.config.ts` and rebuild.
+
+## Project layout
 
 ```
-src/
-  app/          Routes: / (title), /game (game screen); future screens get routes here
-  engine/       Pure game rules (no React) — fully unit tested
-  content/      Declarative game data: heroes, robots, props, items, levels
-  state/        Zustand store bridging engine and UI
-  components/
-    board/      Isometric SVG board + projection helpers
-    sprites/    Sprite registry — ALL visuals resolve here (placeholder SVGs today)
-    hud/        Top/bottom bars, event ticker, game-over overlay
-  i18n/         German player-facing strings
-doc/            Arc42 architecture documentation (keep up to date! see AGENTS.md)
+src/engine/          pure game logic (no React)
+src/engine/levels/   the four hardcoded levels
+src/components/game/ game screen components
+src/app/             routes: / (title + level select), /play/[levelId]
+src/i18n/de.ts       every German string
+doc/                 game design + asset wishlist
 ```
-
-## Static hosting
-
-`npm run build` writes a static site to `out/`. Copy **everything inside `out/`** into a `pets` folder on the webserver (so the game is at `https://your-host/pets/`). Details: [doc/arc42/07_deployment_view.md](doc/arc42/07_deployment_view.md).
-
-## Architecture documentation
-
-Arc42-style documentation lives in [doc/](doc/README.md). **It must be kept in sync with the code** — the rules for that (and for the engine/UI separation, sprite registry, and language conventions) are in [AGENTS.md](AGENTS.md).

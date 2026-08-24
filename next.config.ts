@@ -1,13 +1,13 @@
 import type { NextConfig } from "next";
 
-/** Subfolder the static build is hosted under. Inlined into client bundles. */
-const basePath = "/pets";
+/** Folder on the static host. Change this and rebuild to deploy elsewhere. */
+const basePath = "/pets2";
 
 const nextConfig: NextConfig = {
   output: "export",
   basePath,
-  // Emit /game/index.html so a plain webserver can serve /pets/game/ without rewrites.
   trailingSlash: true,
+  images: { unoptimized: true },
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
   },

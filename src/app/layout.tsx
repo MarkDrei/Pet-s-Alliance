@@ -1,21 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fredoka } from "next/font/google";
+import { de } from "@/i18n/de";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const fredoka = Fredoka({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-fredoka",
 });
 
 export const metadata: Metadata = {
-  title: "Pet's Alliance",
-  description:
-    "Rundenbasiertes Strategiespiel: Die Plüschtiere beschützen das Kinderzimmer vor den Spielzeugrobotern.",
+  title: de.title,
+  description: de.tagline,
 };
 
 export const viewport: Viewport = {
@@ -23,15 +19,16 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#0b0a2a",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="de"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="de">
+      <body className={`${fredoka.variable} antialiased`}>{children}</body>
     </html>
   );
 }

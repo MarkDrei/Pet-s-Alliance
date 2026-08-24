@@ -1,30 +1,35 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
-import { useGameStore } from "@/state/gameStore";
-import TitlePage from "./page";
+// @vitest-environment jsdom
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
+import Home from "./page";
+import { de } from "@/i18n/de";
 
-describe("title page", () => {
-  it("shows the title and one card per level", () => {
-    render(<TitlePage />);
-    expect(screen.getByRole("heading", { name: "Pet's Alliance" })).toBeInTheDocument();
+afterEach(cleanup);
 
-    expect(screen.getByText("Der Teppich")).toBeInTheDocument();
-    expect(screen.getByText("Die Bücherecke")).toBeInTheDocument();
-    expect(screen.getByText("Die Murmelbahn")).toBeInTheDocument();
-    expect(screen.getByText("Die Schreibtisch-Festung")).toBeInTheDocument();
-
-    const links = screen.getAllByRole("link");
-    for (const link of links) {
-      expect(link).toHaveAttribute("href", "/game");
-    }
-    expect(links).toHaveLength(4);
+describe("main screen", () => {
+  it("shows the animated title and tagline", () => {
+    render(<Home />);
+    // The title is split into per-letter spans; check a fragment.
+    expect(screen.getByRole("heading", { level: 1 }).textContent?.replace(/\u00a0/g, " ")).toBe(
+      de.title,
+    );
+    expect(screen.getByText(de.tagline)).toBeInTheDocument();
   });
 
-  it("starts the chosen level when its card is clicked", async () => {
-    const user = userEvent.setup();
-    render(<TitlePage />);
-    await user.click(screen.getByText("Die Murmelbahn"));
-    expect(useGameStore.getState().game.levelId).toBe("level-3");
+  it("links to all four levels with their German names", () => {
+    render(<Home />);
+    for (const id of ["level-1", "level-2", "level-3", "level-4"]) {
+      const link = screen.getByText(de.levels[id].name).closest("a");
+      expect(link).toHaveAttribute("href", `/play/${id}`);
+    }
+  });
+
+  it("shows the future meta buttons as coming soon and disabled", () => {
+    render(<Home />);
+    const team = screen.getByRole("button", { name: new RegExp(de.chooseTeam) });
+    const settings = screen.getByRole("button", { name: new RegExp(de.settings) });
+    expect(team).toBeDisabled();
+    expect(settings).toBeDisabled();
+    expect(screen.getAllByText(de.comingSoon)).toHaveLength(2);
   });
 });

@@ -1,141 +1,206 @@
 @import "tailwindcss";
 
-:root {
+@theme {
   /* Night-time kids' room palette */
-  --background: #2b2452;
-  --background-deep: #1d1840;
-  --foreground: #f4f1ff;
-  --panel: #383066;
-  --panel-border: #4c4287;
-  --accent: #f6c453;
-  --danger: #ff6b6b;
+  --color-night-950: #0b0a2a;
+  --color-night-900: #141245;
+  --color-night-800: #1e1b5e;
+  --color-night-700: #2b2779;
+  --color-night-600: #3d3899;
+  --color-plum-500: #6c5ce7;
+  --color-plum-400: #8b7cf0;
+  --color-honey-300: #ffd166;
+  --color-honey-400: #ffb84d;
+  --color-honey-500: #f59e0b;
+  --color-candy-400: #ff8fab;
+  --color-candy-500: #f76c8a;
+  --color-mint-400: #4ade80;
+  --color-mint-300: #86efac;
+  --color-sky-soft: #7dd3fc;
+  --color-danger-400: #fb7185;
+  --color-danger-500: #ef4444;
+
+  --font-display: var(--font-fredoka), "Comic Sans MS", system-ui, sans-serif;
+
+  --animate-bob: bob 2.6s ease-in-out infinite;
+  --animate-twinkle: twinkle 2.4s ease-in-out infinite;
+  --animate-float: float 5s ease-in-out infinite;
+  --animate-pop-in: pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-wobble: wobble 0.5s ease-in-out;
+  --animate-pulse-soft: pulse-soft 1.4s ease-in-out infinite;
+  --animate-slide-up: slide-up 0.35s ease-out both;
+  --animate-hop: hop 0.5s ease-in-out infinite;
+  --animate-blast: blast 0.6s ease-out both;
+  --animate-spin-slow: spin 6s linear infinite;
+  --animate-tile-flash: tile-flash 0.5s ease-out both;
+  --animate-star-fly: star-fly 0.5s ease-out both;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-background-deep: var(--background-deep);
-  --color-foreground: var(--foreground);
-  --color-panel: var(--panel);
-  --color-panel-border: var(--panel-border);
-  --color-accent: var(--accent);
-  --color-danger: var(--danger);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(3deg);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes wobble {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-7deg);
+  }
+  75% {
+    transform: rotate(7deg);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes blast {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+/* Opacity-only flash for shapes drawn in absolute board coordinates
+   (scaling those would pivot around the SVG origin, not the tile). */
+@keyframes tile-flash {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Comic impact star: pops out of the tile, flies outward, spins and fades.
+   Flight distance comes from --star-dist so each star travels differently. */
+@keyframes star-fly {
+  0% {
+    opacity: 0;
+    transform: translateX(6px) rotate(0deg) scale(0.2);
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(var(--star-dist, 30px)) rotate(220deg) scale(1);
+  }
+}
+
+html,
+body {
+  height: 100%;
+  overscroll-behavior: none;
 }
 
 body {
-  background: linear-gradient(180deg, var(--background-deep) 0%, var(--background) 55%, #352c63 100%);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
-  min-height: 100dvh;
+  font-family: var(--font-display);
+  background: linear-gradient(180deg, var(--color-night-950) 0%, var(--color-night-800) 55%, #35216b 100%);
+  color: #fdf6ff;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
-/* One-shot unit animations, attached by the game store via unitFx. */
-
-@keyframes fx-hop {
-  0% { transform: translateY(0) scale(1, 1); }
-  40% { transform: translateY(-16px) scale(1.06, 0.94); }
-  70% { transform: translateY(0) scale(0.94, 1.06); }
-  100% { transform: translateY(0) scale(1, 1); }
+/* Chunky kid-friendly button feel: squish on tap. */
+.btn-squish {
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    filter 120ms ease;
 }
-.fx-hop {
-  animation: fx-hop 0.45s ease;
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
+.btn-squish:active:not(:disabled) {
+  transform: scale(0.93);
+  filter: brightness(1.1);
 }
 
-@keyframes fx-wobble {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(16deg); }
-  55% { transform: rotate(-13deg); }
-  80% { transform: rotate(6deg); }
-}
-.fx-wobble {
-  animation: fx-wobble 0.55s ease;
-  transform-box: fill-box;
-  transform-origin: 50% 85%;
-}
-
-@keyframes fx-shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-5px); }
-  40% { transform: translateX(5px); }
-  60% { transform: translateX(-3px); }
-  80% { transform: translateX(2px); }
-}
-.fx-shake {
-  animation: fx-shake 0.4s ease;
-}
-
-@keyframes fx-flinch {
-  0%, 100% { opacity: 1; }
-  25% { opacity: 0.25; }
-  50% { opacity: 1; }
-  75% { opacity: 0.35; }
-}
-.fx-flinch {
-  animation: fx-flinch 0.5s linear;
-}
-
-@keyframes fx-lunge {
-  0%, 100% { transform: translateY(0) scale(1, 1); }
-  35% { transform: translateY(-6px) scale(1.1, 0.92); }
-  60% { transform: translateY(0) scale(0.96, 1.04); }
-}
-.fx-lunge {
-  animation: fx-lunge 0.35s ease;
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-}
-
-/* Robot revs up before acting: shivers and puffs up. */
-@keyframes fx-windup {
-  0%, 100% { transform: translateX(0) scale(1); }
-  15% { transform: translateX(-2px) scale(1.02); }
-  35% { transform: translateX(2px) scale(1.05); }
-  55% { transform: translateX(-3px) scale(1.08); }
-  75% { transform: translateX(3px) scale(1.06); }
-  90% { transform: translateX(-1px) scale(1.02); }
-}
-.fx-windup {
-  animation: fx-windup 0.5s ease-in-out;
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-}
-
-/* Stomper locomotion: heavy rocking march while gliding. */
-@keyframes fx-march {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-6px) rotate(-4deg); }
-  50% { transform: translateY(0) rotate(0deg); }
-  75% { transform: translateY(-6px) rotate(4deg); }
-}
-.fx-march {
-  animation: fx-march 0.34s ease-in-out infinite;
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-}
-
-/* Dasher locomotion: leans into the sprint and vibrates. */
-@keyframes fx-dash {
-  0%, 100% { transform: translateY(-1px) rotate(7deg); }
-  50% { transform: translateY(-3px) rotate(10deg); }
-}
-.fx-dash {
-  animation: fx-dash 0.16s linear infinite;
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-}
-
-/* The whole board rattles when a tower crashes down. */
-@keyframes fx-board-shake {
-  0%, 100% { transform: translate(0, 0); }
-  15% { transform: translate(-7px, 4px); }
-  35% { transform: translate(6px, -3px); }
-  55% { transform: translate(-5px, 2px); }
-  75% { transform: translate(3px, -2px); }
-  90% { transform: translate(-2px, 1px); }
-}
-.fx-board-shake {
-  animation: fx-board-shake 0.5s ease;
+/* Twinkling star field (deterministic positions, pure CSS). */
+.star {
+  position: absolute;
+  border-radius: 9999px;
+  background: #fff8e7;
+  animation: twinkle 2.4s ease-in-out infinite;
 }

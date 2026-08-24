@@ -1,0 +1,61 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  IMAGE_NAME: ghcr.io/markdrei/pet-s-alliance
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - run: docker build --tag pets-alliance:ci .
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io --username "${{ github.actor }}" --password-stdin
+      - name: Build and publish image
+        run: |
+          docker build --tag "$IMAGE_NAME:${{ github.sha }}" --tag "$IMAGE_NAME:latest" .
+          docker push "$IMAGE_NAME:${{ github.sha }}"
+          docker push "$IMAGE_NAME:latest"
+      - name: Deploy to VPS
+        env:
+          VPS_GHCR_TOKEN: ${{ secrets.VPS_GHCR_TOKEN }}
+          VPS_GHCR_USERNAME: ${{ secrets.VPS_GHCR_USERNAME }}
+          VPS_SSH_HOST: ${{ secrets.VPS_SSH_HOST }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
+          VPS_SSH_USER: ${{ secrets.VPS_SSH_USER }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$VPS_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf '%s' "$VPS_GHCR_TOKEN" | ssh -o BatchMode=yes "$VPS_SSH_USER@$VPS_SSH_HOST" \
+            "docker login ghcr.io --username '$VPS_GHCR_USERNAME' --password-stdin && \
+             docker pull '$IMAGE_NAME:${{ github.sha }}' && \
+             (docker rm --force pets-alliance 2>/dev/null || true) && \
+             docker run --detach --restart unless-stopped --name pets-alliance \
+               --publish 127.0.0.1:3000:3000 '$IMAGE_NAME:${{ github.sha }}'"

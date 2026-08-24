@@ -41,6 +41,22 @@ The app now matches the VPS deployment contract used in
 2. `Dockerfile` produces a container that serves the app on port `3000`
 3. The VPS reverse-proxies the container at the deployment domain root
 
+### GitHub Actions CI/CD
+
+Pushes and pull requests targeting `main` run linting, tests, the Next.js
+build, and a Docker image build. A successful push to `main` also publishes
+`ghcr.io/markdrei/pet-s-alliance` and replaces the VPS container.
+
+Configure these repository secrets before merging:
+
+- `VPS_GHCR_TOKEN`: a GitHub token with package read access
+- `VPS_GHCR_USERNAME`: the account that owns that token
+- `VPS_SSH_HOST`, `VPS_SSH_USER`, and `VPS_SSH_KEY`: VPS SSH connection details
+- `VPS_SSH_KNOWN_HOSTS`: the VPS host key from `ssh-keyscan -H <host>`
+
+The VPS user must be allowed to run Docker. The workflow binds the container to
+`127.0.0.1:3000`, so the existing VPS reverse proxy can expose it safely.
+
 Local production smoke test:
 
 ```bash

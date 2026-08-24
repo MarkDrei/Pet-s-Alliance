@@ -23,28 +23,42 @@ player-facing text is German.
 ## Commands
 
 ```bash
-npm run dev        # http://localhost:3000/pets2
+npm run dev        # http://localhost:3000
 npm test           # run the test suite once
 npm run test:watch # watch mode
 npm run coverage   # engine + i18n coverage report
 npm run lint       # eslint
-npm run build      # static site into out/
+npm run build      # production Next.js standalone bundle
+npm start          # serve the production build on port 3000
 ```
 
-## Static deploy (`/pets2`)
+## VPS deploy (Docker, port 3000)
 
-The app is frontend-only. `next.config.ts` uses `output: "export"` and
-`basePath: "/pets2"`, so `npm run build` writes a static site into `out/`.
+The app now matches the VPS deployment contract used in
+[MarkDrei/vpsIonos](https://github.com/MarkDrei/vpsIonos):
 
-1. `npm run build`
-2. Upload **the contents of `out/`** (not the `out` folder itself) into the
-   `/pets2` directory on your web server.
-3. Open `https://your-domain/pets2/`
+1. `next.config.ts` builds with `output: "standalone"`
+2. `Dockerfile` produces a container that serves the app on port `3000`
+3. The VPS reverse-proxies the container at the deployment domain root
 
-Each route is a folder with `index.html` (`trailingSlash: true`), so Apache,
-nginx, and similar hosts can serve `/pets2/play/level-1/` without extra
-rewrites. To host under a different folder, change `basePath` in
-`next.config.ts` and rebuild.
+Local production smoke test:
+
+```bash
+npm install
+npm run build
+npm start
+```
+
+### Optional subpath deploys
+
+The default build serves the app at `/`, which is what the VPS expects.
+If you ever need a subpath again, set `NEXT_PUBLIC_BASE_PATH` at build time:
+
+```bash
+NEXT_PUBLIC_BASE_PATH=/pets2 npm run build
+```
+
+That keeps asset URLs and routes aligned under the chosen prefix.
 
 ## Project layout
 

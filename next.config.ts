@@ -1,12 +1,14 @@
 import type { NextConfig } from "next";
 
-/** Folder on the static host. Change this and rebuild to deploy elsewhere. */
-const basePath = "/pets2";
+/**
+ * Optional URL prefix for subpath deploys.
+ * Leave unset for the VPS setup, which serves the app at the domain root.
+ */
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 const nextConfig: NextConfig = {
-  output: "export",
-  basePath,
-  trailingSlash: true,
+  output: "standalone",
+  ...(basePath ? { basePath } : {}),
   images: { unoptimized: true },
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,

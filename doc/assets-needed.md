@@ -19,8 +19,7 @@ bottom center so the sprite sits on the tile.
 | `public/sprites/heroes/bunny.png` | in game |
 | `public/sprites/heroes/unicorn.png` | in game |
 | `public/sprites/robots/*.png` | in game (all five) |
-| `public/sprites/terrain/*.png` | in game (marbles and cushion) |
-| `public/sprites/ui/floor-*.png` | in game (all four levels) |
+| `public/sprites/props/*.png` | in game (tower, books, blocks, both toppled variants) |
 
 ## Robots — `public/sprites/robots/`
 
@@ -39,22 +38,23 @@ which is a different surface treatment from the plush heroes.
 ## Props — `public/sprites/props/`
 
 Standing and toppled variants are separate files; the toppled ones read
-as flat rubble that can be walked over.
+as flat rubble that can be walked over. Only the music box is still a
+placeholder; it is waiting for a blue version.
 
-| File | Description |
-| --- | --- |
-| `tower.png` | Bauklotz-Turm: wobbly tower of 3–4 colorful wooden blocks (red/yellow/blue). |
-| `tower-toppled.png` | The same blocks scattered flat. |
-| `books.png` | Bücherstapel: stack of thick picture books, slightly askew. |
-| `books-toppled.png` | Books fanned out flat on the floor. |
-| `musicbox.png` | Spieluhr: precious pink music box with golden crank and floating note. Should feel special (level-4 objective). |
-| `musicbox-toppled.png` | Tipped over, lid open, no note. |
-| `blocks.png` | Bauklötze: low, sturdy wall of interlocked blocks in muted colors — reads as "solid obstacle", not a target. |
+| File | Status | Description |
+| --- | --- | --- |
+| `tower.png` | in game | Bauklotz-Turm: wobbly tower of 3–4 colorful wooden blocks (red/yellow/blue). |
+| `tower-toppled.png` | in game | The same blocks scattered flat. |
+| `books.png` | in game | Bücherstapel: stack of thick picture books, slightly askew. |
+| `books-toppled.png` | in game | Books fanned out flat on the floor. |
+| `musicbox.png` | needed | Spieluhr: precious music box with golden crank and floating note, in blue. Should feel special (level-4 objective). |
+| `musicbox-toppled.png` | needed | Tipped over, lid open, no note. |
+| `blocks.png` | in game | Bauklötze: low, sturdy wall of interlocked blocks in muted colors — reads as "solid obstacle", not a target. |
 
 ## Terrain tiles — `public/sprites/terrain/`
 
 Drawn on top of the floor hex, under the pieces. Should fit inside a
-flat-top hexagon footprint. Both terrain tiles are in the game.
+flat-top hexagon footprint.
 
 | File | Description |
 | --- | --- |
@@ -72,8 +72,11 @@ Square icons for the action bar (256×256 is plenty).
 
 ## Floors and UI — `public/sprites/ui/`
 
-The four generated floor textures are in the game as one continuous SVG
-pattern clipped by the board hexes. `title-logo.png` remains optional polish.
+Optional polish; the game currently uses flat tinted hexes per level.
+
+A first pass of generated floor textures (flux-schnell) was tried and rolled
+back: photographic textures fought with the pieces, and muting them enough to
+read left the board dull. Raw output is kept under `.sprite-gen/tiles-flux/`.
 
 | File | Description |
 | --- | --- |

@@ -21,7 +21,7 @@ export function tilePoints(h: Axial, inset = 1): string {
   return pts.join(" ");
 }
 
-export const VIEW_RECT = (() => {
+export const VIEW_BOX = (() => {
   const xs = BOARD_TILES.map((t) => tileCenter(t).x);
   const ys = BOARD_TILES.map((t) => tileCenter(t).y);
   const pad = HEX + 14;
@@ -29,7 +29,5 @@ export const VIEW_RECT = (() => {
   const maxX = Math.max(...xs) + pad;
   const minY = Math.min(...ys) - pad;
   const maxY = Math.max(...ys) + pad;
-  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+  return `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
 })();
-
-export const VIEW_BOX = `${VIEW_RECT.x} ${VIEW_RECT.y} ${VIEW_RECT.width} ${VIEW_RECT.height}`;

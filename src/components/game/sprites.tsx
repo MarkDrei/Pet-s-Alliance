@@ -1,10 +1,11 @@
 /**
  * Placeholder vector art for every piece without pipeline art.
- * Heroes already have PNGs in public/sprites/heroes/; everything else is
- * drawn inline so the game looks finished while art is produced.
+ * Heroes, robots and props already have PNGs under public/sprites/; the music
+ * box and the terrain are drawn inline until their art lands.
  * See doc/assets-needed.md for the replacement list.
  */
 import { publicUrl } from "@/assetUrl";
+import { isToppleable } from "@/engine/defs";
 import type { HeroDefId, PropDefId, RobotDefId, TerrainKind } from "@/engine/types";
 
 const OUTLINE = "#241c3b";
@@ -52,55 +53,35 @@ export function RobotSprite({ defId }: { defId: RobotDefId }) {
   );
 }
 
-function block(x: number, y: number, w: number, h: number, fill: string, rotate = 0) {
+/** Where a toppled prop's centre lies, a touch below the tile centre. */
+const DEBRIS_Y = 6;
+
+/**
+ * Frame width, the anchor point inside that frame as fractions measured off the
+ * cutouts, and the tile-space y the anchor lands on. Standing props rest their
+ * base on the same ground line as the figures; toppled ones are debris seen from
+ * above, so they sit centred on the tile. The frames are padded unevenly, hence
+ * the per-sprite anchors.
+ */
+const PROP_ART: Record<string, { size: number; ax: number; ay: number; y: number }> = {
+  tower: { size: 52, ax: 0.5, ay: 0.996, y: GROUND_Y },
+  "tower-toppled": { size: 52, ax: 0.498, ay: 0.5, y: DEBRIS_Y },
+  books: { size: 84, ax: 0.502, ay: 0.723, y: GROUND_Y },
+  "books-toppled": { size: 66, ax: 0.5, ay: 0.514, y: DEBRIS_Y },
+  blocks: { size: 62, ax: 0.391, ay: 1, y: GROUND_Y },
+};
+
+function PropArt({ name }: { name: string }) {
+  const { size, ax, ay, y } = PROP_ART[name];
   return (
-    <rect
-      x={x}
-      y={y}
-      width={w}
-      height={h}
-      rx={3}
-      fill={fill}
-      transform={rotate ? `rotate(${rotate} ${x + w / 2} ${y + h / 2})` : undefined}
+    <image
+      href={publicUrl(`/sprites/props/${name}.png`)}
+      x={-size * ax}
+      y={y - size * ay}
+      width={size}
+      height={size}
+      style={{ filter: "drop-shadow(0 3px 2px rgba(0,0,0,0.35))" }}
     />
-  );
-}
-
-function TowerArt({ toppled }: { toppled: boolean }) {
-  if (toppled) {
-    return (
-      <g stroke={OUTLINE} strokeWidth={2} opacity={0.85}>
-        {block(-20, 0, 16, 12, "#60a5fa", -14)}
-        {block(-2, 2, 15, 11, "#facc15", 10)}
-        {block(8, -8, 14, 11, "#f87171", 28)}
-      </g>
-    );
-  }
-  return (
-    <g stroke={OUTLINE} strokeWidth={2}>
-      {block(-12, -6, 24, 13, "#60a5fa")}
-      {block(-10, -19, 20, 13, "#facc15", -3)}
-      {block(-8, -31, 16, 12, "#f87171", 4)}
-    </g>
-  );
-}
-
-function BooksArt({ toppled }: { toppled: boolean }) {
-  if (toppled) {
-    return (
-      <g stroke={OUTLINE} strokeWidth={2} opacity={0.85}>
-        {block(-19, -1, 22, 8, "#34d399", -18)}
-        {block(-4, 2, 22, 8, "#a78bfa", 6)}
-        {block(-8, -8, 20, 8, "#fb923c", 24)}
-      </g>
-    );
-  }
-  return (
-    <g stroke={OUTLINE} strokeWidth={2}>
-      {block(-14, -2, 28, 9, "#34d399")}
-      {block(-12, -11, 26, 9, "#a78bfa", -4)}
-      {block(-11, -20, 24, 9, "#fb923c", 3)}
-    </g>
   );
 }
 
@@ -126,39 +107,35 @@ function MusicboxArt({ toppled }: { toppled: boolean }) {
   );
 }
 
-function BlocksArt() {
-  return (
-    <g stroke={OUTLINE} strokeWidth={2}>
-      {block(-18, -8, 17, 15, "#94a3b8")}
-      {block(1, -8, 17, 15, "#cbd5e1")}
-      {block(-9, -21, 17, 14, "#64748b")}
-    </g>
-  );
-}
-
 export function PropSprite({ defId, toppled }: { defId: PropDefId; toppled: boolean }) {
-  switch (defId) {
-    case "tower":
-      return <TowerArt toppled={toppled} />;
-    case "books":
-      return <BooksArt toppled={toppled} />;
-    case "musicbox":
-      return <MusicboxArt toppled={toppled} />;
-    case "blocks":
-      return <BlocksArt />;
-  }
+  if (defId === "musicbox") return <MusicboxArt toppled={toppled} />;
+  return <PropArt name={toppled && isToppleable(defId) ? `${defId}-toppled` : defId} />;
 }
 
 export function TerrainSprite({ kind }: { kind: TerrainKind }) {
+  if (kind === "marbles") {
+    return (
+      <g>
+        {[
+          { x: -9, y: -4, r: 6.5, c: "#38bdf8" },
+          { x: 7, y: -8, r: 5.5, c: "#f87171" },
+          { x: 2, y: 6, r: 6, c: "#4ade80" },
+          { x: -4, y: 12, r: 4.5, c: "#facc15" },
+        ].map((m, i) => (
+          <g key={i}>
+            <circle cx={m.x} cy={m.y} r={m.r} fill={m.c} stroke={OUTLINE} strokeWidth={1.5} />
+            <circle cx={m.x - m.r / 3} cy={m.y - m.r / 3} r={m.r / 3.2} fill="#ffffff" opacity={0.8} />
+          </g>
+        ))}
+      </g>
+    );
+  }
   return (
-    <image
-      href={publicUrl(`/sprites/terrain/${kind}.png`)}
-      x={-24}
-      y={-24}
-      width={48}
-      height={48}
-      style={{ filter: "drop-shadow(0 2px 1px rgba(0,0,0,0.25))" }}
-    />
+    <g stroke={OUTLINE} strokeWidth={2}>
+      <rect x={-21} y={-16} width={42} height={32} rx={14} fill="#c4b5fd" />
+      <path d="M -21 0 Q 0 8 21 0" fill="none" stroke="#7c3aed" opacity={0.5} />
+      <circle cx={0} cy={-2} r={3} fill="#7c3aed" stroke="none" />
+    </g>
   );
 }
 

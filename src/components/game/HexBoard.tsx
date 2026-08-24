@@ -6,8 +6,7 @@ import { previewIntent } from "@/engine/planning";
 import type { AbilityTarget } from "@/engine/game";
 import type { FloorKind, GameEvent, GameState } from "@/engine/types";
 import { de } from "@/i18n/de";
-import { publicUrl } from "@/assetUrl";
-import { HEX, tileCenter, tilePoints, VIEW_BOX, VIEW_RECT } from "./layout";
+import { HEX, tileCenter, tilePoints, VIEW_BOX } from "./layout";
 import {
   BlastStar,
   HeroSprite,
@@ -19,14 +18,12 @@ import {
 } from "./sprites";
 import type { InspectTarget, UiMode } from "./useGameController";
 
-const FLOOR_TEXTURES: Record<FloorKind, string> = {
-  rug: "/sprites/ui/floor-rug.png",
-  wood: "/sprites/ui/floor-wood.png",
-  track: "/sprites/ui/floor-track.png",
-  desk: "/sprites/ui/floor-desk.png",
+const FLOOR_COLORS: Record<FloorKind, [string, string]> = {
+  rug: ["#a34a63", "#94425a"],
+  wood: ["#b07a4a", "#a06f42"],
+  track: ["#5f7ba6", "#546e96"],
+  desk: ["#b8905c", "#a78252"],
 };
-
-const FLOOR_CLIP_ID = "board-floor-clip";
 
 /** Facing angle in degrees for each hex direction (flat-top layout). */
 const DIR_ANGLE: Record<Dir, number> = { 0: -90, 1: -30, 2: 30, 3: 90, 4: 150, 5: 210 };
@@ -77,6 +74,7 @@ export function HexBoard({
   itemTargetIds,
   onTileTap,
 }: HexBoardProps) {
+  const floor = FLOOR_COLORS[view.floor];
   const executing = view.phase === "execution";
 
   // Robot plans: red path + attack tiles.
@@ -132,26 +130,7 @@ export function HexBoard({
       role="img"
       aria-label={de.levels[view.levelId]?.name ?? view.levelId}
     >
-      <defs>
-        <clipPath id={FLOOR_CLIP_ID}>
-          {BOARD_TILES.map((tile) => (
-            <polygon key={hexKey(tile)} points={tilePoints(tile, 0.97)} />
-          ))}
-        </clipPath>
-      </defs>
-
-      {/* Floor: one texture across the whole board, showing only through the tiles. */}
-      <g clipPath={`url(#${FLOOR_CLIP_ID})`} pointerEvents="none">
-        <image
-          href={publicUrl(FLOOR_TEXTURES[view.floor])}
-          x={VIEW_RECT.x}
-          y={VIEW_RECT.y}
-          width={VIEW_RECT.width}
-          height={VIEW_RECT.height}
-          preserveAspectRatio="xMidYMid slice"
-        />
-      </g>
-
+      {/* Floor */}
       <g>
         {BOARD_TILES.map((tile) => {
           const shade = ((tile.q - tile.r) % 2 + 2) % 2;
@@ -159,7 +138,7 @@ export function HexBoard({
             <polygon
               key={hexKey(tile)}
               points={tilePoints(tile, 0.97)}
-              fill={shade === 1 ? "rgba(20,10,40,0.13)" : "rgba(255,255,255,0.04)"}
+              fill={floor[shade]}
               stroke="rgba(20,10,40,0.5)"
               strokeWidth={1.6}
               onClick={() => onTileTap(tile)}

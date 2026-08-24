@@ -121,7 +121,7 @@ export function InspectPanel({ view, target, onClose }: InspectPanelProps) {
     if (!prop) return null;
     content = (
       <div className="flex items-center gap-3">
-        <svg viewBox="-28 -40 56 56" className="h-14 w-14 shrink-0">
+        <svg viewBox="-30 -40 60 70" className="h-14 w-14 shrink-0">
           <PropSprite defId={prop.defId} toppled={prop.toppled} />
         </svg>
         <div className="min-w-0">

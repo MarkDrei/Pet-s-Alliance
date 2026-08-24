@@ -1,0 +1,81 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  IMAGE_NAME: ghcr.io/markdrei/pet-s-alliance
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - run: docker build --tag pets-alliance:ci .
+      - name: Save deploy image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: docker save --output pets-alliance.tar pets-alliance:ci
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          name: pets-alliance-image
+          path: pets-alliance.tar
+          retention-days: 1
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: pets-alliance-image
+      - name: Log in to GitHub Container Registry
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "${{ github.actor }}" --password-stdin
+      - name: Publish tested image
+        run: |
+          docker load --input pets-alliance.tar
+          docker tag pets-alliance:ci "$IMAGE_NAME:${{ github.sha }}"
+          docker tag pets-alliance:ci "$IMAGE_NAME:latest"
+          docker push "$IMAGE_NAME:${{ github.sha }}"
+          docker push "$IMAGE_NAME:latest"
+      - name: Deploy to VPS
+        env:
+          VPS_GHCR_TOKEN: ${{ secrets.VPS_GHCR_TOKEN }}
+          VPS_GHCR_USERNAME: ${{ secrets.VPS_GHCR_USERNAME }}
+          VPS_SSH_HOST: ${{ secrets.VPS_SSH_HOST }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
+          VPS_SSH_USER: ${{ secrets.VPS_SSH_USER }}
+        run: |
+          key_file=$(mktemp)
+          known_hosts_file=$(mktemp)
+          trap 'rm -f "$key_file" "$known_hosts_file"' EXIT
+          printf '%s\n' "$VPS_SSH_KEY" > "$key_file"
+          chmod 600 "$key_file"
+          printf '%s\n' "$VPS_SSH_KNOWN_HOSTS" > "$known_hosts_file"
+          printf '%s' "$VPS_GHCR_TOKEN" | ssh -i "$key_file" -o BatchMode=yes \
+            -o UserKnownHostsFile="$known_hosts_file" "$VPS_SSH_USER@$VPS_SSH_HOST" \
+            "docker login ghcr.io --username '$VPS_GHCR_USERNAME' --password-stdin && \
+             docker pull '$IMAGE_NAME:${{ github.sha }}' && \
+             (docker rm --force pets-alliance 2>/dev/null || true) && \
+             docker run --detach --restart unless-stopped --name pets-alliance \
+               --publish 127.0.0.1:3000:3000 '$IMAGE_NAME:${{ github.sha }}'"
